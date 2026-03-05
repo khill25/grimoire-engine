@@ -34,15 +34,53 @@ class Storyteller:
         return "; ".join(goals) if goals else None
 
     def get_player_relationship(self, character_id: str) -> Relationship | None:
-        """Find the character's relationship with the player, if any."""
+        """Find the character's relationship with the player.
+
+        If no explicit relationship exists, creates one from flags/interaction history.
+        """
         char = self._state.get_character(character_id)
         if not char:
             return None
-        # For MVP, look for a relationship tagged with "player"
+
+        # Look for an existing player relationship
         for rel in char.relationships:
             if rel.target_id == "player":
                 return rel
-        return None
+
+        # Build one from game state — tracks how the player has behaved
+        has_met = self._state.flags.get(f"met_{character_id}", False)
+        was_attacked = self._state.flags.get(f"attacked_{character_id}", 0)
+        is_hostile = self._state.flags.get(f"hostile_to_{character_id}", False)
+
+        if not has_met and not was_attacked:
+            return None  # Genuinely a stranger
+
+        # Create a dynamic relationship and attach it to the character
+        trust = 0.0
+        disposition = 0.0
+        types = ["acquaintance"]
+        history = "Met recently."
+
+        if was_attacked:
+            trust = max(-1.0, -0.3 * was_attacked)
+            disposition = max(-1.0, -0.4 * was_attacked)
+            types = ["hostile"]
+            history = f"The player attacked {char.name}" + (
+                f" {was_attacked} times." if was_attacked > 1 else ".")
+
+        if is_hostile:
+            types = ["hostile"]
+
+        rel = Relationship(
+            target_id="player",
+            types=types,
+            trust=trust,
+            familiarity=min(1.0, 0.3 + 0.1 * was_attacked),
+            disposition=disposition,
+            history=history,
+        )
+        char.relationships.append(rel)
+        return rel
 
     def _beat_relevance(self, beat: StoryBeat, character: Character) -> str | None:
         """Determine if/how a beat is relevant to a character interaction."""

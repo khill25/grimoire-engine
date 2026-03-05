@@ -218,6 +218,70 @@ async def test_session_attack_soft_protected(session):
     assert result.narration  # Should have fallback narration
 
 
+# --- Attack consequences ---
+
+@pytest.mark.asyncio
+async def test_attack_sets_hostile_flags(session):
+    """Attacking an NPC should set hostile flags."""
+    await session.process_action(PlayerAction(type="attack", target="mira"))
+    assert session.game_state.flags.get("attacked_mira") == 1
+    assert session.game_state.flags.get("hostile_to_mira") is True
+
+
+@pytest.mark.asyncio
+async def test_attack_stacks(session):
+    """Multiple attacks should increment the counter."""
+    await session.process_action(PlayerAction(type="attack", target="mira"))
+    await session.process_action(PlayerAction(type="attack", target="mira"))
+    assert session.game_state.flags.get("attacked_mira") == 2
+
+
+@pytest.mark.asyncio
+async def test_hostile_npc_refuses_tree(session):
+    """Attacking an NPC then talking should skip the dialogue tree."""
+    await session.process_action(PlayerAction(type="attack", target="mira"))
+    result = await session.start_dialogue("mira")
+    # Should get a hostile canned response, not the tree's opening
+    assert result.is_ended  # Hostile NPCs end the conversation immediately
+    assert "flinch" in result.text.lower() or "want" in result.text.lower()
+    # Should NOT be in the dialogue tree
+    assert session.get_active_dialogue("mira") is None
+
+
+@pytest.mark.asyncio
+async def test_hostile_npc_llm_response(session_with_llm):
+    """With LLM, hostile NPC should get a generated hostile response."""
+    await session_with_llm.process_action(PlayerAction(type="attack", target="mira"))
+    result = await session_with_llm.start_dialogue("mira")
+    assert result.is_ended
+    assert result.writer_response is not None  # LLM generated, not canned
+
+
+@pytest.mark.asyncio
+async def test_witness_flag_set(session):
+    """NPCs present when an attack happens should get witness flags."""
+    # Mira is at rusty_tap — she's the only NPC there at start
+    # Move to dock_7 where multiple NPCs are
+    await session.process_action(PlayerAction(type="move", target="dock_7"))
+    await session.process_action(PlayerAction(type="attack", target="kael"))
+    # Other NPCs at dock_7 should have witness flags
+    place = session.game_state.get_place("dock_7")
+    witnesses = [npc_id for npc_id in place.current_npcs if npc_id != "kael"]
+    for npc_id in witnesses:
+        assert session.game_state.flags.get(f"witnessed_attack_{npc_id}") == "kael"
+
+
+@pytest.mark.asyncio
+async def test_met_flag_skips_first_meeting(session):
+    """If met_mira is set, should not replay first_meeting tree."""
+    session.game_state.flags["met_mira"] = True
+    result = await session.start_dialogue("mira")
+    # With no LLM and met=True, should get acknowledgment, not tree
+    # (first_meeting tree is skipped, no other trees exist, no LLM)
+    assert result.is_ended
+    assert "nod" in result.text.lower() or "acknowledge" in result.text.lower()
+
+
 # --- Token tracking ---
 
 @pytest.mark.asyncio

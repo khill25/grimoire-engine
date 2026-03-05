@@ -116,10 +116,16 @@ class GameSession:
                 )
                 self.game_state.event_log.append(event)
                 await self._persist_event(event)
+                # Consequences: flag + disposition hit
+                self._apply_attack_consequences(action.target, blocked=True)
                 self.game_state.advance_tick()
                 return TickResult(narration=narration, events=[event])
 
         result = self.game_state.process_action(action)
+
+        # Consequences for unprotected attacks
+        if action.type == "attack" and action.target:
+            self._apply_attack_consequences(action.target, blocked=False)
 
         # Persist any new events to DB + vector store
         for event in result.events:
@@ -160,7 +166,11 @@ class GameSession:
     # --- Dialogue ---
 
     async def start_dialogue(self, character_id: str) -> DialogueResult:
-        """Start a conversation with an NPC. Returns the opening node."""
+        """Start a conversation with an NPC.
+
+        Considers context: hostility, prior meetings, recent events, relationship state.
+        Decides whether to run an authored tree, generate an LLM response, or refuse.
+        """
         char = self.game_state.get_character(character_id)
         if char is None:
             return DialogueResult(speaker="", text=f"Unknown character: {character_id}", is_ended=True)
@@ -172,7 +182,22 @@ class GameSession:
         # Log the interaction
         self.game_state.process_action(PlayerAction(type="talk", target=character_id))
 
-        # Find dialogue tree
+        # --- Context assessment ---
+        relationship = self.storyteller.get_player_relationship(character_id)
+        was_attacked = self.game_state.flags.get(f"attacked_{character_id}", 0)
+        is_hostile = self.game_state.flags.get(f"hostile_to_{character_id}", False)
+        has_met = self.game_state.flags.get(f"met_{character_id}", False)
+        witnessed = self.game_state.flags.get(f"witnessed_attack_{character_id}")
+
+        # --- Hostile NPC: refuses tree, LLM or canned response ---
+        if was_attacked or is_hostile:
+            return await self._hostile_greeting(char, character_id, was_attacked, relationship)
+
+        # --- Witnessed violence: wary/scared response ---
+        if witnessed:
+            return await self._wary_greeting(char, character_id, witnessed, relationship)
+
+        # --- Normal flow: find appropriate tree or LLM ---
         tree = self._find_tree(character_id)
         if tree:
             dlg = DialogueState(tree, flags=dict(self.game_state.flags))
@@ -186,25 +211,127 @@ class GameSession:
                     choices=[{"id": c.id, "text": c.text} for c in choices],
                 )
 
-        # No tree — generate a greeting with LLM
+        # No tree — LLM greeting with full context
+        if self.writer:
+            return await self._contextual_greeting(char, character_id, has_met, relationship)
+
+        # No LLM, no tree
+        if has_met:
+            return DialogueResult(
+                speaker=char.name,
+                text=f"{char.name} acknowledges you with a nod.",
+                is_ended=True,
+            )
+        return DialogueResult(
+            speaker=char.name,
+            text=f"{char.name} nods at you but doesn't seem to have much to say.",
+            is_ended=True,
+        )
+
+    async def _hostile_greeting(
+        self, char: Character, character_id: str,
+        attack_count: int, relationship: Relationship | None,
+    ) -> DialogueResult:
+        """NPC was attacked by the player — hostile or refusing interaction."""
         if self.writer:
             scene = self.game_state.get_scene(self.game_state.player_location)
             goal = self.storyteller.get_storyteller_goal(character_id)
+            # Override the storyteller goal with hostility context
+            hostile_context = (
+                f"The player has attacked you {attack_count} time(s). "
+                "You are hostile, angry, or afraid. You do NOT want to talk. "
+                "React accordingly — refuse conversation, threaten, or back away. "
+                "Do not be friendly. Do not pretend nothing happened."
+            )
+            if goal:
+                hostile_context = f"{hostile_context} Also: {goal}"
             resp = await self.writer.generate_dialogue_response(
-                char, scene, "Hello.",
+                char, scene, "The player approaches you.",
                 events=scene.recent_events,
-                player_relationship=self.storyteller.get_player_relationship(character_id),
-                storyteller_goal=goal,
+                player_relationship=relationship,
+                storyteller_goal=hostile_context,
             )
             return DialogueResult(
                 speaker=char.name, text=resp.dialogue,
                 is_ended=True, writer_response=resp,
             )
 
+        # No LLM — canned hostile responses
+        if attack_count >= 3:
+            text = f"{char.name} backs away from you, eyes fixed on your hands. They won't speak to you."
+        elif attack_count >= 2:
+            text = f"{char.name} glares at you. \"Get away from me.\""
+        else:
+            text = f"{char.name} flinches as you approach. \"What do you want?\" Their voice is hard."
+        return DialogueResult(speaker=char.name, text=text, is_ended=True)
+
+    async def _wary_greeting(
+        self, char: Character, character_id: str,
+        witnessed_target: str, relationship: Relationship | None,
+    ) -> DialogueResult:
+        """NPC witnessed the player attack someone else."""
+        target_char = self.game_state.get_character(witnessed_target)
+        target_name = target_char.name if target_char else witnessed_target
+
+        if self.writer:
+            scene = self.game_state.get_scene(self.game_state.player_location)
+            goal = self.storyteller.get_storyteller_goal(character_id)
+            wary_context = (
+                f"You saw the player attack {target_name}. "
+                "You are uneasy, cautious, or scared. Adjust your behavior — "
+                "you might be terse, guarded, or try to end the conversation quickly."
+            )
+            if goal:
+                wary_context = f"{wary_context} Also: {goal}"
+            resp = await self.writer.generate_dialogue_response(
+                char, scene, "The player approaches you.",
+                events=scene.recent_events,
+                player_relationship=relationship,
+                storyteller_goal=wary_context,
+            )
+            return DialogueResult(
+                speaker=char.name, text=resp.dialogue,
+                is_ended=True, writer_response=resp,
+            )
+
+        text = f"{char.name} eyes you warily. \"I saw what you did to {target_name}.\" They keep their distance."
+        return DialogueResult(speaker=char.name, text=text, is_ended=True)
+
+    async def _contextual_greeting(
+        self, char: Character, character_id: str,
+        has_met: bool, relationship: Relationship | None,
+    ) -> DialogueResult:
+        """LLM-generated greeting with full context (no tree available)."""
+        scene = self.game_state.get_scene(self.game_state.player_location)
+        goal = self.storyteller.get_storyteller_goal(character_id)
+
+        # Enrich with vector store context
+        events = list(scene.recent_events)
+        relevant = self._query_relevant_events(
+            f"conversation with {char.name}",
+            location=self.game_state.player_location)
+        if relevant:
+            from grimoire.models.event import Event
+            for r in relevant:
+                if not any(e.id == r["id"] for e in events):
+                    events.append(Event(
+                        id=r["id"], timestamp=r.get("timestamp", 0),
+                        type=r.get("type", "unknown"), summary=r["text"],
+                    ))
+
+        greeting_context = "The player approaches to talk."
+        if has_met:
+            greeting_context = "The player approaches. You have met before."
+
+        resp = await self.writer.generate_dialogue_response(
+            char, scene, greeting_context,
+            events=events,
+            player_relationship=relationship,
+            storyteller_goal=goal,
+        )
         return DialogueResult(
-            speaker=char.name,
-            text=f"{char.name} nods at you but doesn't seem to have much to say.",
-            is_ended=True,
+            speaker=char.name, text=resp.dialogue,
+            is_ended=True, writer_response=resp,
         )
 
     async def dialogue_input(self, character_id: str, player_text: str) -> DialogueResult:
@@ -394,6 +521,51 @@ class GameSession:
             return hash(f"{npc.id}{self.game_state.tick}") % 3 == 0
         return action.type == "interact"
 
+    def _apply_attack_consequences(self, target_id: str, blocked: bool) -> None:
+        """Apply lasting consequences for attacking an NPC."""
+        # Track attack count and flag
+        attack_key = f"attacked_{target_id}"
+        count = self.game_state.flags.get(attack_key, 0)
+        self.game_state.flags[attack_key] = count + 1
+        self.game_state.flags[f"hostile_to_{target_id}"] = True
+
+        # Disposition hit on the target
+        self._degrade_player_relationship(target_id, trust_delta=-0.3, disp_delta=-0.4)
+
+        # Witnesses also react
+        place = self.game_state.get_place(self.game_state.player_location)
+        if place:
+            for npc_id in place.current_npcs:
+                if npc_id == target_id:
+                    continue
+                self.game_state.flags[f"witnessed_attack_{npc_id}"] = target_id
+                self._degrade_player_relationship(npc_id, trust_delta=-0.2, disp_delta=-0.2)
+
+    def _degrade_player_relationship(
+        self, character_id: str, trust_delta: float, disp_delta: float,
+    ) -> None:
+        """Shift a character's relationship with the player (creates one if needed)."""
+        char = self.game_state.get_character(character_id)
+        if not char:
+            return
+
+        # Find or create the player relationship
+        rel = None
+        for r in char.relationships:
+            if r.target_id == "player":
+                rel = r
+                break
+
+        if rel is None:
+            rel = Relationship(
+                target_id="player", types=["stranger"],
+                trust=0.0, familiarity=0.1, disposition=0.0, history="",
+            )
+            char.relationships.append(rel)
+
+        rel.trust = max(-1.0, rel.trust + trust_delta)
+        rel.disposition = max(-1.0, rel.disposition + disp_delta)
+
     async def _persist_event(self, event: Any) -> None:
         """Persist an event to SQLite and vector store (if available)."""
         if self.db:
@@ -458,7 +630,18 @@ class GameSession:
                  if t.character_id == character_id]
         if not trees:
             return None
+
+        has_met = self.game_state.flags.get(f"met_{character_id}", False)
+
+        # First meeting tree — only if we haven't met
         for tree in trees:
-            if tree.context == "first_meeting" and not self.game_state.flags.get(f"met_{character_id}"):
+            if tree.context == "first_meeting" and not has_met:
                 return tree
-        return trees[0]
+
+        # Other trees (non-first_meeting) — use the first match
+        for tree in trees:
+            if tree.context != "first_meeting":
+                return tree
+
+        # Only first_meeting trees exist and we've already met — no tree
+        return None
