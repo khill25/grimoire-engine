@@ -1,10 +1,7 @@
-name: Lowport Station
-tone: gritty sci-fi noir, lived-in, blue collar
-description: >
-  A sprawling orbital station above a dying planet. The lower docks are
-  where the real business happens — smuggling, union politics, and quiet
-  rebellions. The air recyclers never quite keep up.
-
+name: Shattered Kingdom
+tone: 'epic sci-fi fantasy, dark, lived-in, high tech, star wars, elden ring, '
+description: The Shattered Kingdom is the remnants of a once prosperous and sprawling mega space station/spaceship containing
+  the seat of the old ruling class. It is now a massive debris field orbiting a planet/blackhole
 time:
   ticks_per_hour: 1
   hours_per_day: 24

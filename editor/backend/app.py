@@ -68,7 +68,7 @@ def main():
     import uvicorn
     parser = argparse.ArgumentParser(description="Grimoire World Builder")
     parser.add_argument("world_path", help="Path to world directory")
-    parser.add_argument("--port", type=int, default=14200)
+    parser.add_argument("--port", type=int, default=17413)
     parser.add_argument("--host", default="0.0.0.0")
     args = parser.parse_args()
 
