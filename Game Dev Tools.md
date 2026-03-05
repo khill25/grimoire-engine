@@ -1,4 +1,4 @@
-# What we are building
+We need to be able to edit our world yaml, characters, dialog, scenes, and story beats. Basically we need to manage the game content.
 
 ## World Builder
 This is a game content authoring tool. It should have the ability to communicate with the Grimoire Engine itself as it is basically a frontend editing tool for it. We want to be able to author entire sections of content via LLMs.
