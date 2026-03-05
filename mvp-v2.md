@@ -457,23 +457,23 @@ def load_game(path: str) -> GameState
 ## Definition of Done (MVP)
 
 You can:
-- [ ] Load a world (including dialogue trees) from YAML files
-- [ ] Walk between connected places and see descriptions
-- [ ] Talk to NPCs via authored dialogue trees with branching choices
-- [ ] Type free-text responses that get matched to authored branches (>0.75 similarity)
-- [ ] Get LLM-generated in-character responses when free-text doesn't match
-- [ ] NPCs reference their relationships, goals, and recent events in dialogue
-- [ ] Perform actions that generate events (buying something, helping someone, attacking)
-- [ ] Events are logged (SQLite) and embedded (ChromaDB); NPCs in the same location know about them
-- [ ] NPCs follow schedules — they move between locations as time passes
-- [ ] Protected NPCs survive kill attempts with narrated outcomes
-- [ ] Director tracks story beat progress and checks triggers
-- [ ] LLM responses do not create major story changes unless developer-flagged
-- [ ] Switch between LLM providers (Ollama/Anthropic/OpenAI) via config
-- [ ] Save and load game state (including ChromaDB and Director state)
-- [ ] All interactions available via both CLI and REST API
-- [ ] Token usage is tracked per call, tagged by which of the 6 LLM jobs
-- [ ] System runs self-contained — no player-managed dependencies
+- [x] Load a world (including dialogue trees) from YAML files
+- [x] Walk between connected places and see descriptions
+- [x] Talk to NPCs via authored dialogue trees with branching choices
+- [x] Type free-text responses that get matched to authored branches (>0.75 similarity)
+- [x] Get LLM-generated in-character responses when free-text doesn't match
+- [x] NPCs reference their relationships, goals, and recent events in dialogue
+- [x] Perform actions that generate events (buying something, helping someone, attacking)
+- [x] Events are logged (SQLite) and embedded (ChromaDB); NPCs in the same location know about them
+- [x] NPCs follow schedules — they move between locations as time passes
+- [x] Protected NPCs survive kill attempts with narrated outcomes
+- [x] Director tracks story beat progress and checks triggers
+- [x] LLM responses do not create major story changes unless developer-flagged
+- [x] Switch between LLM providers (Ollama/Anthropic/OpenAI) via config
+- [x] Save and load game state (including ChromaDB and Director state)
+- [x] All interactions available via both CLI and REST API
+- [x] Token usage is tracked per call, tagged by which of the 6 LLM jobs
+- [x] System runs self-contained — `uv sync` and go (Ollama is external by design)
 
 ## Sample World for Testing
 

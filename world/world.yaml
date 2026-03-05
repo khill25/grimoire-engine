@@ -1,0 +1,10 @@
+name: Lowport Station
+tone: gritty sci-fi noir, lived-in, blue collar
+description: >
+  A sprawling orbital station above a dying planet. The lower docks are
+  where the real business happens — smuggling, union politics, and quiet
+  rebellions. The air recyclers never quite keep up.
+
+time:
+  ticks_per_hour: 1
+  hours_per_day: 24

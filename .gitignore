@@ -28,6 +28,7 @@ env/
 *.sqlite
 *.sqlite3
 chroma_data/
+saves/
 
 # OS
 .DS_Store

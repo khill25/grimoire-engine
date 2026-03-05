@@ -1,0 +1,106 @@
+id: mira
+name: Mira Vasik
+age: 34
+status: alive
+backstory: >
+  Mira grew up on the lower docks, daughter of a cargo handler who died in a
+  loading accident the company called "operator error." She bought the Rusty
+  Tap with insurance money and turned it into the one place on the lower
+  levels where people actually talk. Behind the bar, she listens. She's been
+  quietly feeding information to a dockworker resistance cell for two years
+  now. Nobody suspects the bartender — that's the point. She carries guilt
+  about her father and channels it into making sure nobody else gets crushed
+  by the machine.
+personality: >
+  Warm on the surface, guarded underneath. Reads people fast. Uses humor to
+  deflect. Fiercely loyal to those she trusts, cold to those she doesn't.
+  Practical — she doesn't believe in grand gestures, just small steady
+  pressure in the right places.
+speech_style: "casual, dry humor, drops her voice when serious, avoids names in public"
+motivations:
+  - Protect the dockworkers from corporate exploitation
+  - Find out what really happened to her father
+  - Keep her cover intact
+goals:
+  - id: protect_workers
+    description: Keep feeding intel to the resistance without getting caught
+    motivation: Protect the dockworkers from corporate exploitation
+    status: active
+    progress: ""
+  - id: father_truth
+    description: Find evidence about the real cause of her father's death
+    motivation: Find out what really happened to her father
+    status: active
+    progress: ""
+wants:
+  - Keep the bar running
+  - Get Kael to pay his tab
+  - Avoid Vera's attention
+affinities:
+  - target: dockworkers
+    score: 0.9
+    reason: Her people, her father's people
+  - target: station_authority
+    score: -0.7
+    reason: Covered up her father's death
+  - target: honesty
+    score: 0.6
+    reason: Values it but understands the need for secrets
+occupation: Bartender, owner of the Rusty Tap
+location: rusty_tap
+schedule:
+  - time_start: 6
+    time_end: 14
+    location: miras_quarters
+    activity: sleeping and personal time
+    interruptible: false
+  - time_start: 14
+    time_end: 23
+    location: rusty_tap
+    activity: tending bar
+    interruptible: true
+  - time_start: 23
+    time_end: 6
+    location: rusty_tap
+    activity: closing up, meeting contacts
+    interruptible: false
+relationships:
+  - target_id: bosk
+    types: [ally, friend]
+    trust: 0.8
+    familiarity: 0.9
+    disposition: 0.7
+    history: >
+      Bosk was her father's best friend. He's the one who first connected
+      her to the resistance. They trust each other with their lives.
+  - target_id: kael
+    types: [acquaintance, debtor]
+    trust: 0.3
+    familiarity: 0.5
+    disposition: -0.2
+    history: >
+      Kael owes Mira for three months of drinks and a docking favor.
+      She tolerates him because he occasionally brings useful cargo intel.
+  - target_id: vera
+    types: [adversary]
+    trust: -0.4
+    familiarity: 0.4
+    disposition: -0.3
+    history: >
+      Vera has been sniffing around the Rusty Tap more often lately.
+      Mira keeps her smiles friendly and her secrets locked down.
+  - target_id: tam
+    types: [acquaintance]
+    trust: 0.2
+    familiarity: 0.6
+    disposition: 0.3
+    history: >
+      Tam shops gossip like currency. Useful, but Mira is careful
+      what she says around him.
+faction_ids: [dockworkers_union]
+protection:
+  level: hard
+  reason: Central to main storyline
+  fallback: >
+    Mira ducks behind the bar with practiced ease. "You're going to have
+    to try harder than that." She reaches for something under the counter.
