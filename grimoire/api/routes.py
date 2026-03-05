@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request, WebSocket
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 from grimoire.engine.game_state import PlayerAction
 from grimoire.engine.session import GameSession
@@ -39,7 +42,9 @@ class DialogueInput(BaseModel):
 
 @router.post("/start")
 async def start_game(req: StartRequest, request: Request):
+    logger.info("Starting game with world_path=%r, player_start=%r", req.world_path, req.player_start)
     world_data = load_world(req.world_path)
+    logger.info("World loaded: characters=%s, places=%s", list(world_data.characters.keys()), list(world_data.places.keys()))
 
     llm = _create_llm_provider(req.llm_provider, req.llm_model)
 
@@ -130,6 +135,7 @@ async def dialogue(input: DialogueInput, request: Request):
     session = _get_session(request)
     gs = session.game_state
     char_id = input.character_id
+    logger.info("Dialogue request: character_id=%r, text=%r, known_characters=%s", char_id, input.text, list(gs.world.characters.keys()))
 
     char = gs.get_character(char_id)
     if char is None:
