@@ -19,7 +19,7 @@ uv run grimoire-cli
 uv run pytest tests/ --ignore=tests/test_ollama_live.py --ignore=tests/test_embeddings_live.py
 
 # Start the API server
-uv run uvicorn grimoire.api.app:app --port 9147 --reload
+uv run uvicorn grimoire.api.app:app --port 14123 --reload
 ```
 
 ## LLM Setup
