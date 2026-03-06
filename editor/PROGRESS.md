@@ -53,7 +53,7 @@ npm run dev
 - [ ] Connection visualization (place graph) — future enhancement
 
 ### Phase 5: Story Beat Editor
-- [x] Story bible viewer (grouped by act)
+- [x] Grimoire viewer (grouped by act)
 - [x] Beat editor (name, description, trigger, status, deadline, off-rails)
 - [ ] Beat graph visualization — future enhancement
 
@@ -98,7 +98,7 @@ editor/
       places.py            # Place CRUD
       factions.py          # Faction CRUD
       dialogue.py          # Dialogue tree CRUD
-      story.py             # Story bible + beats
+      story.py             # Grimoire + beats
   frontend/
     package.json
     vite.config.ts         # Proxy config for backend

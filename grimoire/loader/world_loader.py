@@ -137,8 +137,8 @@ def _load_world_layout(root: Path, world: WorldData) -> None:
     world.factions = _load_directory(root / "factions", Faction)
     world.dialogue_trees = _load_directory(root / "dialogue", DialogueTree)
 
-    # Grimoire (old layout: story/story_bible.yaml)
-    story_file = root / "story" / "story_bible.yaml"
+    # Grimoire (old layout: story/grimoire.yaml)
+    story_file = root / "story" / "grimoire.yaml"
     if story_file.exists():
         world.grimoire = _load_yaml(story_file)
 

@@ -1,7 +1,7 @@
 CLAUDE Read This and provide feedback on the proposed changes. The user needs help designing this editor in a way that affects the objects referenced by the grimoire-engine and game client. This editor is akin to bethesda's creation kit. The story and everything within should be able to be edited in here. As an additional phase it is desired to load a save and view/edit the world state. Please carefuly evaluate changes and check for blind spots. This edtior is a tool that  supports creation of an rpg game.
 
 # The Overview
-This is an editor for the game story. Story is used to reference all the information needed to bootstrap the game and get the grimoire-engine running. The 'grimoire' -my nontheistic name for story bible- is used to refer to the entirety of the game's story information, just as the story-bible name it's replacing did.
+This is an editor for the game story. Story is used to reference all the information needed to bootstrap the game and get the grimoire-engine running. The 'grimoire' is used to refer to the entirety of the game's story information.
 
 These changes may require This would also alterations to existing object definitions and database schema. This is considered a nonbreaking change as we are still iterating on what is needed, what works, and what doesn't work, don't worry about migrations. Old data is not important at this stage of the project.
 

@@ -110,7 +110,7 @@ WS     /game/stream          — Real-time updates (scaffolded for Godot)
 
 ## Sample Test World
 
-3 places (Rusty Tap bar, Dock 7, Mira's Quarters), 5 characters (Mira, Bosk, Kael, Vera, Tam), 1 faction (Dockworkers Union). Authored dialogue trees for Mira (first meeting, ~15 nodes) and Bosk (union talk, ~18 nodes) with conditional nodes and free response slots. Story bible with 6 beats.
+3 places (Rusty Tap bar, Dock 7, Mira's Quarters), 5 characters (Mira, Bosk, Kael, Vera, Tam), 1 faction (Dockworkers Union). Authored dialogue trees for Mira (first meeting, ~15 nodes) and Bosk (union talk, ~18 nodes) with conditional nodes and free response slots. Grimoire with 6 beats.
 
 ## Test Suite
 

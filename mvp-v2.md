@@ -44,7 +44,7 @@ Manages world state: flags dict, character dispositions, faction reputation scor
 - **LLM integration:** Ollama for local LLM (32b model) as primary provider. Abstract provider interface with additional Anthropic (Claude) and OpenAI adapters for optional cloud fallback. Use litellm or a thin wrapper to normalize the interface.
 - **Embedding model:** all-MiniLM-L6-v2 (small CPU model, runs locally)
 - **Data format:** Pydantic models everywhere — they serve as both validation and documentation.
-- **World definitions:** YAML files. The storyteller authors characters, places, story bibles, and **dialogue trees** in YAML (custom format with conditional text, state-setting, and LLM escape hatches). The engine loads them at startup.
+- **World definitions:** YAML files. The storyteller authors characters, places, grimoires, and **dialogue trees** in YAML (custom format with conditional text, state-setting, and LLM escape hatches). The engine loads them at startup.
 - **Testing:** pytest. The test harness should be able to run a scripted sequence of player actions and assert on world state.
 - **Deployment:** Self-contained. The game client launches the engine as a background process. All dependencies (Ollama, ChromaDB, models) are bundled or bootstrapped automatically.
 
@@ -222,7 +222,7 @@ world/
     bosk_conversations.yaml
     ...
   story/
-    story_bible.yaml   # acts, beats, endings (Director uses this)
+    grimoire.yaml      # acts, beats, endings (Director uses this)
 ```
 
 The loader reads these, validates them against Pydantic models, and populates the database. Dialogue choice embeddings are precomputed and stored in ChromaDB. Write a `load_world(path: str)` function that does this idempotently.
@@ -292,7 +292,7 @@ For MVP, the Director is a simple beat tracker. Full tension management and traj
 
 ```python
 class Director:
-    def __init__(self, story_bible: StoryBible, game_state: GameState): ...
+    def __init__(self, grimoire: Grimoire, game_state: GameState): ...
 
     def check_triggers(self, events: list[Event]) -> list[StoryBeat]:
         """Check if any events trigger story beat transitions."""
