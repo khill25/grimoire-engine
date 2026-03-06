@@ -24,16 +24,25 @@ export default function Dialogue() {
     <>
       <EntityList
         title="Dialogue Trees"
-        items={items}
+        items={items.map((item) => ({
+          ...item,
+          graph: "Graph →",
+        }))}
         columns={[
           { key: "id", label: "ID", width: "200px" },
           { key: "character_id", label: "Character", width: "150px" },
           { key: "context", label: "Context" },
           { key: "node_count", label: "Nodes", width: "80px" },
+          { key: "graph", label: "", width: "80px" },
         ]}
         basePath="/dialogue"
         onDelete={async (id) => { await dialogue.delete(id); load(); }}
         onCreate={() => navigate("/dialogue/new")}
+        onCellClick={(item, col) => {
+          if (col === "graph") {
+            navigate(`/dialogue/${item.id}/graph`);
+          }
+        }}
       />
       <button
         onClick={() => setShowGenerate(true)}

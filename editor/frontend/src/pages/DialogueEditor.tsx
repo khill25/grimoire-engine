@@ -136,6 +136,7 @@ export default function DialogueEditor() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <h1 style={{ color: "#e0c097", margin: 0 }}>{isNew ? "New Dialogue Tree" : `Edit: ${tree.id}`}</h1>
           <div style={{ display: "flex", gap: "0.5rem" }}>
+            {!isNew && <button onClick={() => navigate(`/dialogue/${id}/graph`)} style={{ ...btnPrimary, borderColor: "#97b8e0", color: "#97b8e0" }}>Graph View</button>}
             <button onClick={save} disabled={saving} style={btnPrimary}>{saving ? "Saving..." : "Save"}</button>
             <button onClick={() => navigate("/dialogue")} style={btnDanger}>Cancel</button>
           </div>

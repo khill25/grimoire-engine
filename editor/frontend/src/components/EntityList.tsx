@@ -14,9 +14,10 @@ interface Props {
   basePath: string;
   onDelete?: (id: string) => void;
   onCreate?: () => void;
+  onCellClick?: (item: Record<string, any>, columnKey: string) => void;
 }
 
-export default function EntityList({ title, items, columns, idKey = "id", basePath, onDelete, onCreate }: Props) {
+export default function EntityList({ title, items, columns, idKey = "id", basePath, onDelete, onCreate, onCellClick }: Props) {
   const navigate = useNavigate();
 
   return (
@@ -46,7 +47,16 @@ export default function EntityList({ title, items, columns, idKey = "id", basePa
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
               {columns.map((col) => (
-                <td key={col.key} style={tdStyle}>
+                <td
+                  key={col.key}
+                  style={tdStyle}
+                  onClick={onCellClick ? (e) => {
+                    if (onCellClick && item[col.key]) {
+                      e.stopPropagation();
+                      onCellClick(item, col.key);
+                    }
+                  } : undefined}
+                >
                   {Array.isArray(item[col.key]) ? item[col.key].join(", ") : String(item[col.key] ?? "")}
                 </td>
               ))}

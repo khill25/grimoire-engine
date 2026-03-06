@@ -6,6 +6,7 @@ import Characters from "./pages/Characters";
 import CharacterEditor from "./pages/CharacterEditor";
 import Dialogue from "./pages/Dialogue";
 import DialogueEditor from "./pages/DialogueEditor";
+import DialogueGraph from "./pages/DialogueGraph";
 import Places from "./pages/Places";
 import PlaceEditor from "./pages/PlaceEditor";
 import Scenes from "./pages/Scenes";
@@ -14,6 +15,7 @@ import Factions from "./pages/Factions";
 import FactionEditor from "./pages/FactionEditor";
 import StoryBeats from "./pages/StoryBeats";
 import Validate from "./pages/Validate";
+import WorldGraph from "./pages/WorldGraph";
 
 export default function App() {
   return (
@@ -22,10 +24,12 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<StorySettings />} />
           <Route path="/world" element={<WorldInfo />} />
+          <Route path="/world-graph" element={<WorldGraph />} />
           <Route path="/characters" element={<Characters />} />
           <Route path="/characters/:id" element={<CharacterEditor />} />
           <Route path="/dialogue" element={<Dialogue />} />
           <Route path="/dialogue/:id" element={<DialogueEditor />} />
+          <Route path="/dialogue/:id/graph" element={<DialogueGraph />} />
           <Route path="/places" element={<Places />} />
           <Route path="/places/:id" element={<PlaceEditor />} />
           <Route path="/scenes" element={<Scenes />} />

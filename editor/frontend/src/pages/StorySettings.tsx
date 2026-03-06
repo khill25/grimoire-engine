@@ -5,20 +5,27 @@ import FormField, { inputStyle, textareaStyle, btnPrimary } from "../components/
 export default function StorySettings() {
   const [data, setData] = useState<Record<string, any>>({});
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    storyMeta.get().then(setData);
+    storyMeta.get().then(setData).catch((e) => setError(e.message));
   }, []);
 
   const save = async () => {
     setSaving(true);
-    await storyMeta.update(data);
+    setError("");
+    try {
+      await storyMeta.update(data);
+    } catch (e: any) {
+      setError(e.message);
+    }
     setSaving(false);
   };
 
   return (
     <div style={{ maxWidth: 600 }}>
       <h1 style={{ color: "#e0c097" }}>Story Settings</h1>
+      {error && <div style={{ color: "#f88", marginBottom: "1rem" }}>{error}</div>}
       <FormField label="Name">
         <input style={inputStyle} value={data.name || ""} onChange={(e) => setData({ ...data, name: e.target.value })} />
       </FormField>

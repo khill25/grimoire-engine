@@ -3,6 +3,7 @@ import { NavLink, Outlet } from "react-router-dom";
 const navItems = [
   { to: "/", label: "Story" },
   { to: "/world", label: "World" },
+  { to: "/world-graph", label: "World Graph" },
   { to: "/places", label: "Places" },
   { to: "/scenes", label: "Scenes" },
   { to: "/characters", label: "Characters" },
