@@ -166,7 +166,7 @@ export default function CharacterEditor() {
             <button style={removeBtnStyle} onClick={() => update({ schedule: char.schedule.filter((_, j) => j !== i) })}>Remove</button>
           </div>
         ))}
-        <button style={addBtnStyle} onClick={() => update({ schedule: [...char.schedule, { time_start: 0, time_end: 8, location: "", activity: "", interruptible: true }] })}>+ Add Schedule Entry</button>
+        <button style={addBtnStyle} onClick={() => update({ schedule: [...char.schedule, { time_start: 0, time_end: 8, location: "", scene: "", activity: "", interruptible: true }] })}>+ Add Schedule Entry</button>
       </Section>
 
       {/* Affinities */}

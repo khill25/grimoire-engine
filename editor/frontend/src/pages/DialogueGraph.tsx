@@ -77,7 +77,6 @@ function layoutTree(tree: DialogueTree): { nodes: Node[]; edges: Edge[] } {
 
   // BFS to determine levels
   const levels: Map<string, number> = new Map();
-  const colAtLevel: Map<number, number> = new Map();
   const queue = [tree.root_node];
   levels.set(tree.root_node, 0);
   const visited = new Set<string>();
@@ -157,12 +156,20 @@ function layoutTree(tree: DialogueTree): { nodes: Node[]; edges: Edge[] } {
   return { nodes, edges };
 }
 
+// --- Helper: generate a unique node ID ---
+function nextNodeId(tree: DialogueTree): string {
+  const existing = new Set(tree.nodes.map((n) => n.id));
+  let i = tree.nodes.length + 1;
+  while (existing.has(`node_${i}`)) i++;
+  return `node_${i}`;
+}
+
 export default function DialogueGraph() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tree, setTree] = useState<DialogueTree | null>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -178,15 +185,15 @@ export default function DialogueGraph() {
     }
   }, [id]);
 
-  const refreshGraph = useCallback((t: DialogueTree) => {
+  const refreshGraph = useCallback((t: DialogueTree, selectId?: string | null) => {
+    const sel = selectId !== undefined ? selectId : selectedNodeId;
     const layout = layoutTree(t);
-    // Preserve positions if nodes exist
     setNodes((prev) => {
       const posMap = new Map(prev.map((n) => [n.id, n.position]));
       return layout.nodes.map((n) => ({
         ...n,
         position: posMap.get(n.id) || n.position,
-        data: { ...n.data, selected: n.id === selectedNodeId },
+        data: { ...n.data, selected: n.id === sel },
       }));
     });
     setEdges(layout.edges);
@@ -207,11 +214,11 @@ export default function DialogueGraph() {
     setNodes((nds) => nds.map((n) => ({ ...n, data: { ...n.data, selected: false } })));
   }, []);
 
-  const updateTree = useCallback((updater: (prev: DialogueTree) => DialogueTree) => {
+  const updateTree = useCallback((updater: (prev: DialogueTree) => DialogueTree, newSelectedId?: string) => {
     setTree((prev) => {
       if (!prev) return prev;
       const next = updater(prev);
-      refreshGraph(next);
+      refreshGraph(next, newSelectedId);
       return next;
     });
   }, [refreshGraph]);
@@ -246,17 +253,60 @@ export default function DialogueGraph() {
     updateNode({ choices: selectedNode.choices.filter((_, i) => i !== idx) });
   };
 
+  // Create a new disconnected node and select it
   const addNode = () => {
     if (!tree) return;
-    const nodeId = `node_${tree.nodes.length + 1}`;
+    const nodeId = nextNodeId(tree);
     updateTree((prev) => ({
       ...prev,
       nodes: [...prev.nodes, {
         id: nodeId, speaker: tree.character_id, text: "", condition: null,
         state_changes: null, choices: [], llm_escape: false, is_key_moment: false,
       }],
-    }));
+    }), nodeId);
     setSelectedNodeId(nodeId);
+  };
+
+  // Create a new node AND a choice pointing to it from the current node
+  const addChoiceWithNewNode = () => {
+    if (!selectedNode || !tree) return;
+    const nodeId = nextNodeId(tree);
+    const choiceId = `choice_${selectedNode.choices.length + 1}`;
+    updateTree((prev) => ({
+      ...prev,
+      nodes: [
+        ...prev.nodes.map((n) =>
+          n.id === selectedNode.id
+            ? {
+                ...n,
+                choices: [...n.choices, { id: choiceId, text: "", next_node: nodeId, condition: null, embedding: null }],
+              }
+            : n
+        ),
+        {
+          id: nodeId, speaker: tree.character_id, text: "", condition: null,
+          state_changes: null, choices: [], llm_escape: false, is_key_moment: false,
+        },
+      ],
+    }));
+  };
+
+  // Create a new node and wire an existing choice to it
+  const createNodeForChoice = (choiceIdx: number) => {
+    if (!selectedNode || !tree) return;
+    const nodeId = nextNodeId(tree);
+    const choices = [...selectedNode.choices];
+    choices[choiceIdx] = { ...choices[choiceIdx], next_node: nodeId };
+    updateTree((prev) => ({
+      ...prev,
+      nodes: [
+        ...prev.nodes.map((n) => n.id === selectedNode.id ? { ...n, choices } : n),
+        {
+          id: nodeId, speaker: tree.character_id, text: "", condition: null,
+          state_changes: null, choices: [], llm_escape: false, is_key_moment: false,
+        },
+      ],
+    }));
   };
 
   const deleteNode = () => {
@@ -291,23 +341,29 @@ export default function DialogueGraph() {
         <div style={{
           position: "absolute", top: 10, left: 10, zIndex: 5,
           display: "flex", gap: "0.5rem", alignItems: "center",
+          background: "#0a0a1acc", padding: "6px 10px", borderRadius: 6,
+          border: "1px solid #333",
         }}>
           <span style={{ color: "#e0c097", fontSize: "0.9rem", fontWeight: 600 }}>
             {tree.id}
           </span>
           <span style={{ color: "#666", fontSize: "0.8rem" }}>
-            ({tree.character_id} / {tree.context})
+            {tree.character_id} / {tree.context}
           </span>
-          <button onClick={addNode} style={toolbarBtn}>+ Node</button>
+          <div style={{ width: 1, height: 18, background: "#444", margin: "0 2px" }} />
+          <button onClick={addNode} style={addNodeBtn}>+ New Node</button>
           <button onClick={save} disabled={saving} style={{ ...toolbarBtn, borderColor: "#8b8", color: "#8b8" }}>
             {saving ? "Saving..." : "Save"}
+          </button>
+          <button onClick={() => navigate(`/dialogue/${id}`)} style={{ ...toolbarBtn, borderColor: "#97b8e0", color: "#97b8e0" }}>
+            List View
           </button>
           <button onClick={() => navigate("/dialogue")} style={{ ...toolbarBtn, borderColor: "#a55", color: "#a55" }}>
             Back
           </button>
         </div>
         {error && (
-          <div style={{ position: "absolute", top: 10, right: 10, zIndex: 5, color: "#f88", fontSize: "0.8rem" }}>
+          <div style={{ position: "absolute", top: 50, left: 10, zIndex: 5, color: "#f88", fontSize: "0.8rem" }}>
             {error}
           </div>
         )}
@@ -339,7 +395,7 @@ export default function DialogueGraph() {
                 ...prev,
                 root_node: prev.root_node === oldId ? newId : prev.root_node,
                 nodes: prev.nodes.map((n) => n.id === oldId ? { ...n, id: newId } : n),
-              }));
+              }), newId);
               setSelectedNodeId(newId);
             }} />
           </FormField>
@@ -374,7 +430,6 @@ export default function DialogueGraph() {
           <div style={{ borderTop: "1px solid #333", paddingTop: "0.75rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
               <h4 style={{ color: "#97b8e0", margin: 0, fontSize: "0.85rem" }}>Choices</h4>
-              <button onClick={addChoice} style={{ ...toolbarBtn, padding: "1px 8px", fontSize: "0.7rem" }}>+ Choice</button>
             </div>
             {selectedNode.choices.map((choice, i) => (
               <div key={i} style={{
@@ -382,21 +437,32 @@ export default function DialogueGraph() {
                 padding: "0.4rem", marginBottom: 4, position: "relative",
               }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
-                  <input style={{ ...inputStyle, fontSize: "0.8rem", padding: "0.3rem" }} placeholder="Choice ID" value={choice.id} onChange={(e) => updateChoice(i, { id: e.target.value })} />
-                  <select style={{ ...selectStyle, fontSize: "0.8rem", padding: "0.3rem" }} value={choice.next_node} onChange={(e) => updateChoice(i, { next_node: e.target.value })}>
-                    <option value="">-- Next --</option>
-                    {tree.nodes.filter((n) => n.id !== selectedNode.id).map((n) => (
-                      <option key={n.id} value={n.id}>{n.id}</option>
-                    ))}
-                  </select>
+                  <input style={smallInput} placeholder="Choice ID" value={choice.id} onChange={(e) => updateChoice(i, { id: e.target.value })} />
+                  <div style={{ display: "flex", gap: 2 }}>
+                    <select style={{ ...selectStyle, fontSize: "0.8rem", padding: "0.3rem", flex: 1 }} value={choice.next_node} onChange={(e) => updateChoice(i, { next_node: e.target.value })}>
+                      <option value="">-- Next --</option>
+                      {tree.nodes.filter((n) => n.id !== selectedNode.id).map((n) => (
+                        <option key={n.id} value={n.id}>{n.id}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => createNodeForChoice(i)}
+                      title="Create new node as target"
+                      style={newNodeMiniBtn}
+                    >+</button>
+                  </div>
                 </div>
-                <input style={{ ...inputStyle, fontSize: "0.8rem", padding: "0.3rem", marginTop: 3 }} placeholder="Choice text" value={choice.text} onChange={(e) => updateChoice(i, { text: e.target.value })} />
+                <input style={{ ...smallInput, marginTop: 3 }} placeholder="Choice text" value={choice.text} onChange={(e) => updateChoice(i, { text: e.target.value })} />
                 <button onClick={() => removeChoice(i)} style={{
                   position: "absolute", top: 2, right: 4,
                   background: "none", border: "none", color: "#a33", cursor: "pointer", fontSize: "0.7rem",
                 }}>×</button>
               </div>
             ))}
+            <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
+              <button onClick={addChoice} style={{ ...addBtnStyle, flex: 1 }}>+ Choice</button>
+              <button onClick={addChoiceWithNewNode} style={{ ...addBtnStyle, flex: 1, borderColor: "#97b8e0", color: "#97b8e0" }}>+ Choice → New Node</button>
+            </div>
           </div>
 
           {/* Actions */}
@@ -431,4 +497,39 @@ const toolbarBtn: React.CSSProperties = {
   borderRadius: 4,
   cursor: "pointer",
   fontSize: "0.75rem",
+};
+
+const addNodeBtn: React.CSSProperties = {
+  ...toolbarBtn,
+  borderColor: "#e0c097",
+  color: "#e0c097",
+  fontWeight: 600,
+  padding: "4px 12px",
+};
+
+const smallInput: React.CSSProperties = {
+  ...inputStyle,
+  fontSize: "0.8rem",
+  padding: "0.3rem",
+};
+
+const addBtnStyle: React.CSSProperties = {
+  background: "transparent",
+  color: "#e0c097",
+  border: "1px dashed #555",
+  padding: "0.3rem 0.5rem",
+  borderRadius: 4,
+  cursor: "pointer",
+  fontSize: "0.7rem",
+};
+
+const newNodeMiniBtn: React.CSSProperties = {
+  background: "#0a0a1a",
+  color: "#97b8e0",
+  border: "1px solid #97b8e0",
+  borderRadius: 3,
+  cursor: "pointer",
+  fontSize: "0.75rem",
+  padding: "0 6px",
+  flexShrink: 0,
 };

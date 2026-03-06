@@ -7,6 +7,7 @@ import type { DialogueTree, DialogueNode, DialogueChoice } from "../types/models
 const emptyTree: DialogueTree = {
   id: "", character_id: "", context: "", root_node: "greeting",
   nodes: [{ id: "greeting", speaker: "", text: "", condition: null, state_changes: null, choices: [], llm_escape: false, is_key_moment: false }],
+  extras: {},
 };
 
 export default function DialogueEditor() {

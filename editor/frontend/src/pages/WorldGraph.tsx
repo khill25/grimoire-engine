@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ReactFlow,
   Background,
@@ -104,11 +105,12 @@ function autoLayout(placeList: any[], sceneList: any[]): { nodes: Node[]; edges:
 }
 
 export default function WorldGraph() {
+  const navigate = useNavigate();
   const [placeList, setPlaceList] = useState<any[]>([]);
   const [sceneList, setSceneList] = useState<any[]>([]);
   const [charList, setCharList] = useState<any[]>([]);
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selected, setSelected] = useState<any | null>(null);
   const [selectedScenes, setSelectedScenes] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
@@ -173,6 +175,25 @@ export default function WorldGraph() {
   return (
     <div style={{ display: "flex", height: "calc(100vh - 3rem)" }}>
       <div style={{ flex: 1, position: "relative" }}>
+        {/* Toolbar */}
+        <div style={{
+          position: "absolute", top: 10, left: 10, zIndex: 5,
+          display: "flex", gap: "0.5rem", alignItems: "center",
+          background: "#0a0a1acc", padding: "6px 10px", borderRadius: 6,
+          border: "1px solid #333",
+        }}>
+          <span style={{ color: "#e0c097", fontSize: "0.9rem", fontWeight: 600 }}>
+            World Map
+          </span>
+          <span style={{ color: "#666", fontSize: "0.8rem" }}>
+            {placeList.length} place{placeList.length !== 1 ? "s" : ""} · {sceneList.length} scene{sceneList.length !== 1 ? "s" : ""}
+          </span>
+          <div style={{ width: 1, height: 18, background: "#444", margin: "0 2px" }} />
+          <button onClick={() => navigate("/places/new")} style={addPlaceBtn}>+ New Place</button>
+          <button onClick={() => navigate("/places")} style={toolbarBtn}>Places List</button>
+          <button onClick={() => navigate("/")} style={{ ...toolbarBtn, borderColor: "#a55", color: "#a55" }}>Back</button>
+        </div>
+
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -253,3 +274,21 @@ export default function WorldGraph() {
     </div>
   );
 }
+
+const toolbarBtn: React.CSSProperties = {
+  background: "#0a0a1a",
+  color: "#97b8e0",
+  border: "1px solid #444",
+  padding: "3px 10px",
+  borderRadius: 4,
+  cursor: "pointer",
+  fontSize: "0.75rem",
+};
+
+const addPlaceBtn: React.CSSProperties = {
+  ...toolbarBtn,
+  borderColor: "#e0c097",
+  color: "#e0c097",
+  fontWeight: 600,
+  padding: "4px 12px",
+};
