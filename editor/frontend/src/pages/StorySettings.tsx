@@ -73,8 +73,9 @@ export default function StorySettings() {
       await storyMeta.update(meta);
     } catch (e: any) {
       setError(e.message);
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const saveGrimoire = async () => {
@@ -84,8 +85,9 @@ export default function StorySettings() {
       await story.update({ ...grimoire, acts });
     } catch (e: any) {
       setError(e.message);
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   // Act operations
@@ -135,6 +137,8 @@ export default function StorySettings() {
   };
 
   const saveBeat = async (beat: Beat) => {
+    setSaving(true);
+    setError("");
     try {
       await story.updateBeat(beat.id, beat);
       setActs((prev) => prev.map((a) => ({
@@ -144,6 +148,8 @@ export default function StorySettings() {
       setEditingBeat(null);
     } catch (e: any) {
       setError(e.message);
+    } finally {
+      setSaving(false);
     }
   };
 
