@@ -6,18 +6,18 @@ Web-based game content authoring tool for Grimoire Engine. React + TypeScript fr
 ## Tech Stack
 - **Backend:** FastAPI (Python), reads/writes YAML files directly, connects to engine for LLM
 - **Frontend:** React + TypeScript + Vite, minimal dependencies
-- **Port:** 15231 (Vite dev), 17413 (backend API)
+- **Port:** 5173 (Vite dev), 14200 (backend API)
 
 ## How to Run
 ```bash
 # Terminal 1: Backend
 cd grimoire-engine
-uv run python -m editor.backend.app world --port 17413
+uv run python -m editor.backend.app world --port 14200
 
 # Terminal 2: Frontend (dev mode with hot reload)
 cd grimoire-engine/editor/frontend
 npm run dev
-# Open http://localhost:15231
+# Open http://localhost:5173
 ```
 
 ## Build Order & Status
@@ -109,20 +109,35 @@ editor/
       api/client.ts        # API client (all endpoints)
       types/models.ts      # TypeScript model types
       components/
-        Layout.tsx         # Sidebar + main area
-        EntityList.tsx     # Reusable table list
-        FormField.tsx      # Form field wrapper + shared styles
+        Layout.tsx            # Sidebar navigation + main area
+        EntityList.tsx        # Reusable sortable table list
+        EntitySelect.tsx      # Searchable entity picker (single + multi)
+        FormField.tsx         # Form field wrapper + shared input/button styles
+        ConditionBuilder.tsx  # Structured condition editor (flag/event)
+        StateChangesEditor.tsx # Key/value flag editor (bool/text/num)
+        TriggerEditor.tsx     # Beat trigger editor (type + conditions)
+        GenerateModal.tsx     # LLM generation prompt modal
+        FieldAssist.tsx       # Inline AI button for text fields
+        ExtrasEditor.tsx      # Generic key/value extras editor
+        ValidationPanel.tsx   # Validation results display
+        GraphSidePanel.tsx    # Side panel for graph views
       pages/
-        WorldInfo.tsx
-        Characters.tsx
-        CharacterEditor.tsx
-        Dialogue.tsx
-        DialogueEditor.tsx
-        Places.tsx
-        PlaceEditor.tsx
-        Factions.tsx
-        FactionEditor.tsx
-        StoryBeats.tsx
+        StorySettings.tsx     # Main dashboard (metadata, grimoire, acts & beats)
+        WorldInfo.tsx         # World metadata editor
+        WorldGraph.tsx        # Visual place connection graph
+        Characters.tsx        # Character list
+        CharacterEditor.tsx   # Full character editor
+        Places.tsx            # Place list
+        PlaceEditor.tsx       # Place editor
+        Scenes.tsx            # Scene list
+        SceneEditor.tsx       # Scene editor
+        Factions.tsx          # Faction list
+        FactionEditor.tsx     # Faction editor
+        Dialogue.tsx          # Dialogue tree list
+        DialogueEditor.tsx    # Node-by-node dialogue editor
+        DialogueGraph.tsx     # Dialogue node graph visualization
+        StoryBeats.tsx        # Dedicated beat editor
+        Validate.tsx          # Cross-reference validation
 ```
 
 ## LLM Generation Details

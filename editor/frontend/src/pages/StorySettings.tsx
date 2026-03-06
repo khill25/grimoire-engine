@@ -4,6 +4,7 @@ import { storyMeta, story, characters, places, scenes, factions, dialogue, gener
 import FormField, { inputStyle, textareaStyle, selectStyle, btnPrimary, btnDanger } from "../components/FormField";
 import ExtrasEditor from "../components/ExtrasEditor";
 import GenerateModal from "../components/GenerateModal";
+import TriggerEditor from "../components/TriggerEditor";
 
 interface Act {
   id: string;
@@ -397,21 +398,23 @@ export default function StorySettings() {
                 <option value="failed">Failed</option>
               </select>
             </FormField>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
-              <FormField label="Trigger Type">
-                <input style={inputStyle} value={editingBeat.trigger?.type || ""} onChange={(e) => setEditingBeat({ ...editingBeat, trigger: { ...editingBeat.trigger, type: e.target.value } })} />
-              </FormField>
-              <FormField label="Trigger Condition">
-                <input style={inputStyle} value={editingBeat.trigger?.condition || ""} onChange={(e) => setEditingBeat({ ...editingBeat, trigger: { ...editingBeat.trigger, condition: e.target.value } })} />
-              </FormField>
-            </div>
-            <FormField label="Deadline (ticks)">
+            <FormField label="Trigger" hint="When this beat activates during gameplay.">
+              <TriggerEditor
+                key={editingBeat.id}
+                value={editingBeat.trigger}
+                onChange={(trigger) => setEditingBeat({ ...editingBeat, trigger })}
+              />
+            </FormField>
+            <FormField label="Deadline (ticks)" hint="Ticks after activation before expiry. Empty = no deadline.">
               <input style={inputStyle} type="number" value={editingBeat.deadline ?? ""} onChange={(e) => setEditingBeat({ ...editingBeat, deadline: e.target.value ? parseInt(e.target.value) : undefined })} />
             </FormField>
-            <label style={{ color: "#ccc", fontSize: "0.85rem", display: "block", marginBottom: "1rem" }}>
+            <label style={{ color: "#ccc", fontSize: "0.85rem", display: "block", marginBottom: "0.25rem" }}>
               <input type="checkbox" checked={editingBeat.allow_off_rails || false} onChange={(e) => setEditingBeat({ ...editingBeat, allow_off_rails: e.target.checked })} />{" "}
               Allow Off-Rails
             </label>
+            <div style={{ fontSize: "0.75rem", color: "#666", marginBottom: "1rem" }}>
+              When enabled, the LLM can take the story in unexpected directions at this beat.
+            </div>
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <button onClick={() => saveBeat(editingBeat)} disabled={saving} style={{ ...btnPrimary, flex: 1 }}>
                 {saving ? "Saving..." : "Save Beat"}
