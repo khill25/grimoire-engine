@@ -1,0 +1,22 @@
+id: rusty_tap
+name: The Rusty Tap
+type: bar
+description: >
+  A dim bar on the lower docks. The lighting is amber and unreliable,
+  the seats are patched with cargo tape, and the air smells like engine
+  coolant and cheap whiskey. A hand-painted sign behind the bar reads
+  "No Tabs Over 50 Credits" — everyone ignores it. The Rusty Tap is
+  where the lower dock workers come to drink, talk, and pretend the
+  station isn't falling apart around them.
+current_state: open for business
+connections: [dock_7, miras_quarters]
+region: lower_docks
+default_npcs: [mira]
+current_npcs: [mira]
+scenes: [rusty_tap_main_hall]
+is_public: true
+owner: mira
+atmosphere: >
+  Warm amber light, low murmur of conversation, clink of glasses.
+  A recycler fan rattles overhead. Feels like the one safe place
+  on the lower docks.

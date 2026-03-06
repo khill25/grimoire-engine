@@ -27,6 +27,7 @@ export interface ScheduleEntry {
   time_start: number;
   time_end: number;
   location: string;
+  scene: string;
   activity: string;
   interruptible: boolean;
 }
@@ -55,6 +56,7 @@ export interface Character {
   relationships: Relationship[];
   faction_ids: string[];
   protection: ProtectionLevel;
+  extras: Record<string, unknown>;
 }
 
 export interface Place {
@@ -67,9 +69,27 @@ export interface Place {
   region: string;
   default_npcs: string[];
   current_npcs: string[];
+  scenes: string[];
   is_public: boolean;
   owner: string;
   atmosphere: string;
+  extras: Record<string, unknown>;
+}
+
+export interface Scene {
+  id: string;
+  name: string;
+  place_id: string;
+  type: string;
+  description: string;
+  current_state: string;
+  default_npcs: string[];
+  current_npcs: string[];
+  connections: string[];
+  atmosphere: string;
+  is_public: boolean;
+  owner: string;
+  extras: Record<string, unknown>;
 }
 
 export interface Faction {
@@ -79,6 +99,7 @@ export interface Faction {
   values: string[];
   member_ids: string[];
   reputation_with_player: number;
+  extras: Record<string, unknown>;
 }
 
 export interface DialogueChoice {
@@ -106,6 +127,7 @@ export interface DialogueTree {
   context: string;
   root_node: string;
   nodes: DialogueNode[];
+  extras: Record<string, unknown>;
 }
 
 export interface StoryBeat {
@@ -135,6 +157,16 @@ export interface PlaceSummary {
   type: string;
   region: string;
   connections: string[];
+  scenes: string[];
+  file: string;
+}
+
+export interface SceneSummary {
+  id: string;
+  name: string;
+  place_id: string;
+  type: string;
+  default_npcs: string[];
   file: string;
 }
 
@@ -152,4 +184,25 @@ export interface DialogueTreeSummary {
   context: string;
   node_count: number;
   file: string;
+}
+
+export interface ValidationResult {
+  broken_refs: {
+    source_file: string;
+    field: string;
+    referenced_id: string;
+    expected_type: string;
+  }[];
+  duplicate_ids: {
+    id: string;
+    files: string[];
+  }[];
+  entity_counts: Record<string, number>;
+}
+
+export interface StoryMeta {
+  name: string;
+  description: string;
+  tone: string;
+  worlds: string[];
 }

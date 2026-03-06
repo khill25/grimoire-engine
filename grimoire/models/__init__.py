@@ -4,6 +4,9 @@ from grimoire.models.place import Place
 from grimoire.models.event import Event
 from grimoire.models.faction import Faction
 from grimoire.models.dialogue import DialogueChoice, DialogueNode, DialogueTree
+from grimoire.models.scene import Scene
+from grimoire.models.world import World
+from grimoire.models.story import Story
 
 __all__ = [
     "Affinity",
@@ -18,5 +21,8 @@ __all__ = [
     "Place",
     "ProtectionLevel",
     "Relationship",
+    "Scene",
     "ScheduleEntry",
+    "Story",
+    "World",
 ]

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { factions } from "../api/client";
+import { factions, characters } from "../api/client";
 import FormField, { inputStyle, textareaStyle, btnPrimary, btnDanger } from "../components/FormField";
+import { MultiEntitySelect } from "../components/EntitySelect";
+import ExtrasEditor from "../components/ExtrasEditor";
 import type { Faction } from "../types/models";
 
 const emptyFaction: Faction = {
-  id: "", name: "", description: "", values: [], member_ids: [], reputation_with_player: 0,
+  id: "", name: "", description: "", values: [], member_ids: [], reputation_with_player: 0, extras: {},
 };
 
 export default function FactionEditor() {
@@ -35,6 +37,11 @@ export default function FactionEditor() {
     setSaving(false);
   };
 
+  const fetchCharacters = async () => {
+    const list = await characters.list();
+    return list.map((c: any) => ({ id: c.id, name: c.name }));
+  };
+
   return (
     <div style={{ maxWidth: 700 }}>
       <h1 style={{ color: "#e0c097" }}>{isNew ? "New Faction" : `Edit: ${faction.name}`}</h1>
@@ -55,12 +62,17 @@ export default function FactionEditor() {
       <FormField label="Values" hint="One per line">
         <textarea style={{ ...textareaStyle, minHeight: 60 }} value={faction.values.join("\n")} onChange={(e) => update({ values: e.target.value.split("\n").filter(Boolean) })} />
       </FormField>
-      <FormField label="Member IDs" hint="Comma-separated character IDs">
-        <input style={inputStyle} value={faction.member_ids.join(", ")} onChange={(e) => update({ member_ids: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} />
+      <FormField label="Members">
+        <MultiEntitySelect values={faction.member_ids} onChange={(v) => update({ member_ids: v })} fetchItems={fetchCharacters} />
       </FormField>
       <FormField label="Reputation with Player" hint="-1.0 to 1.0">
         <input style={inputStyle} type="number" step="0.1" min="-1" max="1" value={faction.reputation_with_player} onChange={(e) => update({ reputation_with_player: parseFloat(e.target.value) })} />
       </FormField>
+
+      <div style={{ marginTop: "1.5rem" }}>
+        <h3 style={{ color: "#e0c097", borderBottom: "1px solid #333", paddingBottom: 4 }}>Custom Fields (Extras)</h3>
+        <ExtrasEditor extras={faction.extras} onChange={(extras) => update({ extras })} />
+      </div>
 
       <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
         <button onClick={save} disabled={saving} style={btnPrimary}>{saving ? "Saving..." : isNew ? "Create Faction" : "Save Changes"}</button>

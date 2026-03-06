@@ -1,6 +1,6 @@
 """Character model — full-tier, hand-authored for MVP."""
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel
 
@@ -25,3 +25,4 @@ class Character(BaseModel):
     relationships: list[Relationship] = []
     faction_ids: list[str] = []
     protection: ProtectionLevel = ProtectionLevel()
+    extras: dict[str, Any] = {}

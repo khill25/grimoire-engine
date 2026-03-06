@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { characters } from "../api/client";
+import { characters, places, factions as factionsApi } from "../api/client";
 import FormField, { inputStyle, textareaStyle, selectStyle, btnPrimary, btnDanger } from "../components/FormField";
 import FieldAssist from "../components/FieldAssist";
+import EntitySelect, { MultiEntitySelect } from "../components/EntitySelect";
+import ExtrasEditor from "../components/ExtrasEditor";
 import type { Character, Goal, Relationship, ScheduleEntry, Affinity } from "../types/models";
 
 const emptyCharacter: Character = {
   id: "", name: "", age: 25, status: "alive", backstory: "", personality: "",
   speech_style: "", motivations: [], goals: [], wants: [], affinities: [],
   occupation: "", location: "", schedule: [], relationships: [], faction_ids: [],
-  protection: { level: "none", reason: "", fallback: "" },
+  protection: { level: "none", reason: "", fallback: "" }, extras: {},
 };
 
 export default function CharacterEditor() {
@@ -75,7 +77,7 @@ export default function CharacterEditor() {
           <input style={inputStyle} value={char.occupation} onChange={(e) => update({ occupation: e.target.value })} />
         </FormField>
         <FormField label="Location">
-          <input style={inputStyle} value={char.location} onChange={(e) => update({ location: e.target.value })} />
+          <EntitySelect value={char.location} onChange={(v) => update({ location: v })} fetchItems={async () => { const list = await places.list(); return list.map((p: any) => ({ id: p.id, name: p.name })); }} />
         </FormField>
       </div>
 
@@ -103,12 +105,8 @@ export default function CharacterEditor() {
           onChange={(e) => update({ wants: e.target.value.split("\n").filter(Boolean) })}
         />
       </FormField>
-      <FormField label="Faction IDs" hint="Comma-separated">
-        <input
-          style={inputStyle}
-          value={char.faction_ids.join(", ")}
-          onChange={(e) => update({ faction_ids: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
-        />
+      <FormField label="Factions">
+        <MultiEntitySelect values={char.faction_ids} onChange={(v) => update({ faction_ids: v })} fetchItems={async () => { const list = await factionsApi.list(); return list.map((f: any) => ({ id: f.id, name: f.name })); }} />
       </FormField>
 
       {/* Goals */}
@@ -202,6 +200,11 @@ export default function CharacterEditor() {
         <FormField label="Fallback Text">
           <textarea style={{ ...textareaStyle, minHeight: 60 }} value={char.protection.fallback} onChange={(e) => update({ protection: { ...char.protection, fallback: e.target.value } })} />
         </FormField>
+      </Section>
+
+      {/* Extras */}
+      <Section title="Custom Fields (Extras)">
+        <ExtrasEditor extras={char.extras} onChange={(extras) => update({ extras })} />
       </Section>
 
       <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>

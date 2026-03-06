@@ -1,0 +1,92 @@
+id: bosk
+name: Bosk Renner
+age: 52
+status: alive
+backstory: >
+  Bosk has worked the docks for thirty years. He watched the corporations
+  squeeze out independent operators one by one. When his friend Havel Vasik
+  died in the loading accident, something broke in Bosk — or maybe something
+  finally set. He became the union representative not because he wanted
+  power, but because nobody else would stand up. He's tired, his knees
+  hurt, and he drinks too much, but he shows up every day.
+personality: >
+  Gruff, direct, no patience for bullshit. Underneath the hard exterior
+  is a man who cares deeply and is terrified of failing the people who
+  depend on him. Slow to trust strangers but once you're in, you're in.
+speech_style: "blunt, short sentences, working-class slang, sighs a lot"
+motivations:
+  - Keep the union alive against corporate pressure
+  - Honor Havel's memory
+  - Protect Mira
+goals:
+  - id: union_survival
+    description: Negotiate the new cargo contract without losing jobs
+    motivation: Keep the union alive against corporate pressure
+    status: active
+    progress: "Talks stalled. Management wants automation clause."
+wants:
+  - Get through the contract negotiations
+  - Find out who's been talking to station security
+  - A decent night's sleep
+affinities:
+  - target: solidarity
+    score: 0.9
+    reason: Core belief — workers stick together or they all fall
+  - target: corporations
+    score: -0.8
+    reason: Watched them destroy lives for profit margins
+  - target: violence
+    score: -0.3
+    reason: Prefers negotiation but isn't naive
+occupation: Dockworker, Union Representative
+location: dock_7
+schedule:
+  - time_start: 5
+    time_end: 14
+    location: dock_7
+    activity: dock work and union business
+    interruptible: true
+  - time_start: 14
+    time_end: 20
+    location: rusty_tap
+    activity: drinking, meeting with contacts
+    interruptible: true
+  - time_start: 20
+    time_end: 5
+    location: dock_7
+    activity: sleeping in the dock quarters
+    interruptible: false
+relationships:
+  - target_id: mira
+    types: [ally, friend, protector]
+    trust: 0.8
+    familiarity: 0.9
+    disposition: 0.8
+    history: >
+      Mira is Havel's daughter. Bosk promised himself he'd look after her.
+      She doesn't need his protection anymore, but he can't stop.
+  - target_id: kael
+    types: [acquaintance]
+    trust: 0.1
+    familiarity: 0.3
+    disposition: -0.1
+    history: Kael is unreliable. Bosk tolerates him because Mira does.
+  - target_id: vera
+    types: [adversary]
+    trust: -0.5
+    familiarity: 0.3
+    disposition: -0.4
+    history: Vera represents everything Bosk is fighting against.
+  - target_id: tam
+    types: [acquaintance]
+    trust: 0.1
+    familiarity: 0.4
+    disposition: 0.0
+    history: Tam talks too much, but sometimes what he says is useful.
+faction_ids: [dockworkers_union]
+protection:
+  level: soft
+  reason: Important to union storyline
+  fallback: >
+    Bosk takes the hit and staggers, but the old dockworker is tougher
+    than he looks. He spits blood and squares up. "That all you got?"

@@ -1,0 +1,100 @@
+id: vera
+name: Vera Hask
+age: 41
+status: alive
+backstory: >
+  Vera is station security, mid-rank, and she takes her job seriously.
+  She came up through enforcement on a corporate mining platform where
+  corners got cut and people got hurt. She transferred to Lowport to get
+  away from that, only to find the same rot in a different uniform. She
+  doesn't trust anyone on the lower docks and she's right not to — but
+  her suspicion sometimes blinds her to who the real threats are. She
+  genuinely believes in law and order, which makes her dangerous.
+personality: >
+  Controlled, observant, always watching. Dry humor when she lets her
+  guard down, which is rare. Respects competence. Doesn't like being
+  lied to — not for moral reasons, but because it insults her
+  intelligence.
+speech_style: "clipped, professional, asks questions instead of making statements, uncomfortable silence as a weapon"
+motivations:
+  - Maintain order on the station
+  - Find the resistance cell she knows exists
+  - Prove she's not just another corporate enforcer
+goals:
+  - id: find_resistance
+    description: Identify who's organizing the dockworkers beyond normal union activity
+    motivation: Find the resistance cell she knows exists
+    status: active
+    progress: "Suspects the Rusty Tap is a meeting point. No proof yet."
+wants:
+  - Get someone on the lower docks to actually talk to her
+  - Find evidence before her supervisor pulls her off the case
+  - Coffee that doesn't taste like recycled coolant
+affinities:
+  - target: order
+    score: 0.8
+    reason: Core belief in structure and law
+  - target: corruption
+    score: -0.9
+    reason: Left her last post because of it
+  - target: honesty
+    score: 0.7
+    reason: Respects people who are straight with her
+occupation: Station Security Officer
+location: dock_7
+schedule:
+  - time_start: 6
+    time_end: 18
+    location: dock_7
+    activity: patrol and investigation
+    interruptible: true
+  - time_start: 18
+    time_end: 20
+    location: rusty_tap
+    activity: off-duty observation
+    interruptible: true
+  - time_start: 20
+    time_end: 6
+    location: dock_7
+    activity: security office, off duty
+    interruptible: false
+relationships:
+  - target_id: mira
+    types: [suspect, acquaintance]
+    trust: -0.4
+    familiarity: 0.4
+    disposition: -0.1
+    history: >
+      Vera knows Mira is hiding something. The bartender is too calm,
+      too connected. But Vera can't prove anything yet.
+  - target_id: bosk
+    types: [suspect, adversary]
+    trust: -0.5
+    familiarity: 0.3
+    disposition: -0.4
+    history: >
+      The union rep is openly hostile. Vera suspects he's more than
+      just a negotiator.
+  - target_id: kael
+    types: [informant_potential]
+    trust: -0.1
+    familiarity: 0.2
+    disposition: 0.0
+    history: >
+      Kael is a coward and a gossip. With the right pressure he might
+      be useful.
+  - target_id: tam
+    types: [informant]
+    trust: 0.1
+    familiarity: 0.5
+    disposition: 0.2
+    history: >
+      Tam sells information to anyone who's buying. Vera pays in
+      overlooked minor infractions.
+faction_ids: []
+protection:
+  level: soft
+  reason: Drives tension in the investigation subplot
+  fallback: >
+    Vera sidesteps with trained reflexes, hand going to her sidearm.
+    "Assaulting a station officer. Bold move. Let's see how that works out."

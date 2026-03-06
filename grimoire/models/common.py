@@ -32,6 +32,7 @@ class ScheduleEntry(BaseModel):
     time_start: int  # tick of day
     time_end: int
     location: str  # place_id
+    scene: str = ""  # scene_id (optional, more specific than location)
     activity: str
     interruptible: bool = True
 

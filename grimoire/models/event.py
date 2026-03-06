@@ -1,6 +1,6 @@
 """Event model — append-only event log entries."""
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -17,3 +17,4 @@ class Event(BaseModel):
     visibility: Literal["private", "local", "regional", "global"] = "local"
     tags: list[str] = []
     severity: float = Field(default=0.0, ge=0.0, le=1.0)
+    extras: dict[str, Any] = {}

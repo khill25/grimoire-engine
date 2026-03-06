@@ -1,22 +1,21 @@
-"""Place model — locations in the game world."""
+"""Scene model — sub-locations within a place."""
 
 from typing import Any
 
 from pydantic import BaseModel
 
 
-class Place(BaseModel):
+class Scene(BaseModel):
     id: str
     name: str
-    type: str  # bar, docking_bay, residence, etc.
-    description: str
+    place_id: str  # parent place reference
+    type: str = ""
+    description: str = ""
     current_state: str = ""
-    connections: list[str] = []  # place_ids
-    region: str = ""
     default_npcs: list[str] = []  # character_ids
     current_npcs: list[str] = []
-    scenes: list[str] = []  # scene_ids
+    connections: list[str] = []  # sibling scene_ids within same place
+    atmosphere: str = ""
     is_public: bool = True
     owner: str = ""  # character_id or faction_id
-    atmosphere: str = ""
     extras: dict[str, Any] = {}

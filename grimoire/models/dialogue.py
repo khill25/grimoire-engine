@@ -30,3 +30,4 @@ class DialogueTree(BaseModel):
     context: str  # when this tree activates (e.g. "first_meeting", "quest_active")
     root_node: str  # starting dialogue_node_id
     nodes: list[DialogueNode]
+    extras: dict[str, Any] = {}

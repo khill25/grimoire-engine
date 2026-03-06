@@ -30,6 +30,15 @@ export const places = {
   delete: (id: string) => request<any>(`/places/${id}`, { method: "DELETE" }),
 };
 
+// Scenes
+export const scenes = {
+  list: (placeId?: string) => request<any[]>(placeId ? `/scenes?place_id=${placeId}` : "/scenes"),
+  get: (id: string) => request<any>(`/scenes/${id}`),
+  create: (data: any) => request<any>("/scenes", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: any) => request<any>(`/scenes/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (id: string) => request<any>(`/scenes/${id}`, { method: "DELETE" }),
+};
+
 // Factions
 export const factions = {
   list: () => request<any[]>("/factions"),
@@ -56,10 +65,21 @@ export const story = {
   updateBeat: (id: string, data: any) => request<any>(`/story/beats/${id}`, { method: "PUT", body: JSON.stringify(data) }),
 };
 
+// Story metadata
+export const storyMeta = {
+  get: () => request<any>("/story-meta"),
+  update: (data: any) => request<any>("/story-meta", { method: "PUT", body: JSON.stringify(data) }),
+};
+
 // World
 export const world = {
   get: () => request<any>("/world"),
   update: (data: any) => request<any>("/world", { method: "PUT", body: JSON.stringify(data) }),
+};
+
+// Validation
+export const validation = {
+  validate: () => request<any>("/validate"),
 };
 
 // LLM Generation

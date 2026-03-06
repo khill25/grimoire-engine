@@ -1,12 +1,15 @@
 import { NavLink, Outlet } from "react-router-dom";
 
 const navItems = [
-  { to: "/", label: "World" },
-  { to: "/characters", label: "Characters" },
-  { to: "/dialogue", label: "Dialogue" },
+  { to: "/", label: "Story" },
+  { to: "/world", label: "World" },
   { to: "/places", label: "Places" },
+  { to: "/scenes", label: "Scenes" },
+  { to: "/characters", label: "Characters" },
   { to: "/factions", label: "Factions" },
+  { to: "/dialogue", label: "Dialogue" },
   { to: "/story", label: "Story Beats" },
+  { to: "/validate", label: "Validate" },
 ];
 
 export default function Layout() {
@@ -33,6 +36,7 @@ export default function Layout() {
           <NavLink
             key={item.to}
             to={item.to}
+            end={item.to === "/"}
             style={({ isActive }) => ({
               display: "block",
               padding: "0.5rem 1rem",

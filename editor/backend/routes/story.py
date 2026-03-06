@@ -12,7 +12,20 @@ router = APIRouter(prefix="/story", tags=["story"])
 
 
 def _story_path(request: Request) -> Path:
-    return Path(request.app.state.world_path) / "story" / "story_bible.yaml"
+    """Find story bible — checks new layout (grimoire.yaml) then old (story/story_bible.yaml)."""
+    story_root = Path(request.app.state.story_path)
+    # New layout
+    grimoire = story_root / "grimoire.yaml"
+    if grimoire.exists():
+        return grimoire
+    # Old layout
+    old = Path(request.app.state.world_path) / "story" / "story_bible.yaml"
+    if old.exists():
+        return old
+    # Default to new layout path for creation
+    if request.app.state.layout == "story":
+        return grimoire
+    return old
 
 
 @router.get("")

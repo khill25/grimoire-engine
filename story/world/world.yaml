@@ -1,0 +1,9 @@
+id: shattered_kingdom
+name: Shattered Kingdom
+type: space_station
+description: The Shattered Kingdom is the remnants of a once prosperous and sprawling mega space station/spaceship
+  containing the seat of the old ruling class. It is now a massive debris field orbiting a planet/blackhole
+tone: 'epic sci-fi fantasy, dark, lived-in, high tech, star wars, elden ring, '
+time_config:
+  ticks_per_hour: 1
+  hours_per_day: 24

@@ -13,6 +13,7 @@ from grimoire.models.character import Character
 from grimoire.models.common import GameTime
 from grimoire.models.event import Event
 from grimoire.models.place import Place
+from grimoire.models.scene import Scene
 
 
 class PlayerAction(BaseModel):
@@ -23,6 +24,7 @@ class PlayerAction(BaseModel):
 
 class SceneContext(BaseModel):
     place: Place
+    scene: Scene | None = None
     npcs_present: list[Character]
     recent_events: list[Event]
     atmosphere: str = ""
@@ -48,6 +50,7 @@ class GameState:
         self.quest_states: dict[str, str] = {}
         self.event_log = EventLog()
         self.player_location: str = ""  # place_id
+        self.current_scene_id: str = ""  # scene_id (optional, more specific)
 
         # Initialize NPC locations from their defaults
         self._update_npc_locations()
@@ -67,18 +70,45 @@ class GameState:
         if place is None:
             raise ValueError(f"Unknown place: {place_id}")
 
-        npcs = [self.world.characters[cid]
-                for cid in place.current_npcs
-                if cid in self.world.characters]
+        # Try scene-level NPC resolution first
+        scene = self._get_current_scene(place_id)
+        npcs = self.get_npcs_at_location(place_id)
 
         recent = self.event_log.query(location=place_id, limit=10)
 
         return SceneContext(
             place=place,
+            scene=scene,
             npcs_present=npcs,
             recent_events=recent,
-            atmosphere=place.atmosphere,
+            atmosphere=scene.atmosphere if scene and scene.atmosphere else place.atmosphere,
         )
+
+    def get_scene_model(self, scene_id: str) -> Scene | None:
+        return self.world.scenes.get(scene_id)
+
+    def get_npcs_at_location(self, place_id: str) -> list[Character]:
+        """Get NPCs at the current location, preferring scene-level when available."""
+        scene = self._get_current_scene(place_id)
+        if scene and scene.current_npcs:
+            npc_ids = scene.current_npcs
+        else:
+            place = self.world.places.get(place_id)
+            npc_ids = place.current_npcs if place else []
+        return [self.world.characters[cid] for cid in npc_ids
+                if cid in self.world.characters]
+
+    def _get_current_scene(self, place_id: str) -> Scene | None:
+        """Get the active scene for a place. Uses current_scene_id if set and matching."""
+        if self.current_scene_id:
+            scene = self.world.scenes.get(self.current_scene_id)
+            if scene and scene.place_id == place_id:
+                return scene
+        # Fall back to first scene of the place
+        place = self.world.places.get(place_id)
+        if place and place.scenes:
+            return self.world.scenes.get(place.scenes[0])
+        return None
 
     def process_action(self, action: PlayerAction) -> TickResult:
         """Process a player action and return the result."""
@@ -118,6 +148,11 @@ class GameState:
             return TickResult(narration=f"Unknown location: {target}")
 
         self.player_location = target
+        # Default to the first scene of the new place
+        if place.scenes:
+            self.current_scene_id = place.scenes[0]
+        else:
+            self.current_scene_id = ""
         event = create_event(
             timestamp=self.tick,
             type="interaction",

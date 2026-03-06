@@ -1,0 +1,14 @@
+id: dockworkers_union
+name: Dockworkers Union
+description: >
+  The last organized labor group on Lowport Station. They represent
+  the cargo handlers, crane operators, and maintenance crews of the
+  lower docks. Management has been trying to break them for years
+  through automation threats and contract squeezes. Under the surface,
+  a resistance cell operates within union membership.
+values:
+  - Worker solidarity
+  - Fair wages and safe conditions
+  - Resistance to corporate automation
+member_ids: [bosk, mira]
+reputation_with_player: 0.0

@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { places } from "../api/client";
+import { places, scenes as scenesApi, characters } from "../api/client";
 import FormField, { inputStyle, textareaStyle, btnPrimary, btnDanger } from "../components/FormField";
 import FieldAssist from "../components/FieldAssist";
+import EntitySelect, { MultiEntitySelect } from "../components/EntitySelect";
+import ExtrasEditor from "../components/ExtrasEditor";
 import type { Place } from "../types/models";
 
 const emptyPlace: Place = {
   id: "", name: "", type: "", description: "", current_state: "", connections: [],
-  region: "", default_npcs: [], current_npcs: [], is_public: true, owner: "", atmosphere: "",
+  region: "", default_npcs: [], current_npcs: [], scenes: [], is_public: true, owner: "",
+  atmosphere: "", extras: {},
 };
 
 export default function PlaceEditor() {
@@ -15,12 +18,14 @@ export default function PlaceEditor() {
   const navigate = useNavigate();
   const isNew = id === "new";
   const [place, setPlace] = useState<Place>(emptyPlace);
+  const [placeScenes, setPlaceScenes] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!isNew && id) {
       places.get(id).then(setPlace).catch(() => setError("Place not found"));
+      scenesApi.list(id).then(setPlaceScenes);
     }
   }, [id, isNew]);
 
@@ -35,6 +40,16 @@ export default function PlaceEditor() {
       navigate("/places");
     } catch (e: any) { setError(e.message); }
     setSaving(false);
+  };
+
+  const fetchPlaces = async () => {
+    const list = await places.list();
+    return list.filter((p: any) => p.id !== place.id).map((p: any) => ({ id: p.id, name: p.name }));
+  };
+
+  const fetchCharacters = async () => {
+    const list = await characters.list();
+    return list.map((c: any) => ({ id: c.id, name: c.name }));
   };
 
   return (
@@ -56,7 +71,7 @@ export default function PlaceEditor() {
           <input style={inputStyle} value={place.region} onChange={(e) => update({ region: e.target.value })} />
         </FormField>
         <FormField label="Owner">
-          <input style={inputStyle} value={place.owner} onChange={(e) => update({ owner: e.target.value })} />
+          <EntitySelect value={place.owner} onChange={(v) => update({ owner: v })} fetchItems={fetchCharacters} />
         </FormField>
         <FormField label="Public">
           <label style={{ color: "#ccc" }}>
@@ -74,12 +89,54 @@ export default function PlaceEditor() {
       <FormField label="Current State">
         <input style={inputStyle} value={place.current_state} onChange={(e) => update({ current_state: e.target.value })} />
       </FormField>
-      <FormField label="Connections" hint="Comma-separated place IDs">
-        <input style={inputStyle} value={place.connections.join(", ")} onChange={(e) => update({ connections: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} />
+      <FormField label="Connections" hint="Connected places">
+        <MultiEntitySelect values={place.connections} onChange={(v) => update({ connections: v })} fetchItems={fetchPlaces} />
       </FormField>
-      <FormField label="Default NPCs" hint="Comma-separated character IDs">
-        <input style={inputStyle} value={place.default_npcs.join(", ")} onChange={(e) => update({ default_npcs: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} />
+      <FormField label="Default NPCs">
+        <MultiEntitySelect values={place.default_npcs} onChange={(v) => update({ default_npcs: v })} fetchItems={fetchCharacters} />
       </FormField>
+
+      <FormField label="Custom Fields (Extras)">
+        <ExtrasEditor extras={place.extras} onChange={(extras) => update({ extras })} />
+      </FormField>
+
+      {/* Scenes section */}
+      {!isNew && (
+        <div style={{ marginTop: "2rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h3 style={{ color: "#e0c097", borderBottom: "1px solid #333", paddingBottom: 4, flex: 1 }}>Scenes</h3>
+            <button
+              onClick={() => navigate(`/scenes/new?place_id=${place.id}`)}
+              style={{
+                background: "transparent", color: "#e0c097", border: "1px dashed #555",
+                padding: "0.3rem 0.8rem", borderRadius: 4, cursor: "pointer", fontSize: "0.8rem",
+              }}
+            >
+              + Add Scene
+            </button>
+          </div>
+          {placeScenes.length === 0 && (
+            <div style={{ color: "#666", fontSize: "0.85rem" }}>No scenes yet. Add one to define sub-locations.</div>
+          )}
+          {placeScenes.map((s) => (
+            <div
+              key={s.id}
+              onClick={() => navigate(`/scenes/${s.id}`)}
+              style={{
+                background: "#1a1a2e", border: "1px solid #333", borderRadius: 4,
+                padding: "0.5rem 0.75rem", marginBottom: 4, cursor: "pointer",
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+              }}
+            >
+              <div>
+                <span style={{ color: "#e0c097" }}>{s.name || s.id}</span>
+                {s.type && <span style={{ color: "#888", marginLeft: 8, fontSize: "0.8rem" }}>({s.type})</span>}
+              </div>
+              <span style={{ color: "#666", fontSize: "0.8rem" }}>{(s.default_npcs || []).join(", ")}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
         <button onClick={save} disabled={saving} style={btnPrimary}>{saving ? "Saving..." : isNew ? "Create Place" : "Save Changes"}</button>

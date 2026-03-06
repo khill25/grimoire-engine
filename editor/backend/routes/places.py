@@ -1,4 +1,4 @@
-"""Place CRUD routes."""
+"""Place CRUD routes — supports both flat and nested directory layouts."""
 
 from __future__ import annotations
 
@@ -17,27 +17,56 @@ def _places_dir(request: Request) -> Path:
     return Path(request.app.state.world_path) / "places"
 
 
+def _find_place_file(places_dir: Path, place_id: str) -> Path | None:
+    """Find a place file in either flat or nested layout."""
+    # Nested: places/<id>/place.yaml
+    nested = places_dir / place_id / "place.yaml"
+    if nested.exists():
+        return nested
+    # Flat: places/<id>.yaml
+    flat = places_dir / f"{place_id}.yaml"
+    if flat.exists():
+        return flat
+    return None
+
+
+def _all_place_files(places_dir: Path) -> list[tuple[Path, str]]:
+    """List all place files. Returns (path, place_id) pairs."""
+    results = []
+    if not places_dir.exists():
+        return results
+    for item in sorted(places_dir.iterdir()):
+        if item.is_dir():
+            place_file = item / "place.yaml"
+            if place_file.exists():
+                results.append((place_file, item.name))
+        elif item.suffix == ".yaml":
+            results.append((item, item.stem))
+    return results
+
+
 @router.get("")
 async def list_places(request: Request) -> list[dict]:
     places_dir = _places_dir(request)
     results = []
-    for path in list_yaml_files(places_dir):
+    for path, pid in _all_place_files(places_dir):
         data = read_yaml(path)
         results.append({
-            "id": data.get("id", path.stem),
+            "id": data.get("id", pid),
             "name": data.get("name", ""),
             "type": data.get("type", ""),
             "region": data.get("region", ""),
             "connections": data.get("connections", []),
-            "file": path.name,
+            "scenes": data.get("scenes", []),
+            "file": str(path.relative_to(places_dir)),
         })
     return results
 
 
 @router.get("/{place_id}")
 async def get_place(place_id: str, request: Request) -> dict:
-    path = _places_dir(request) / f"{place_id}.yaml"
-    if not path.exists():
+    path = _find_place_file(_places_dir(request), place_id)
+    if path is None:
         raise HTTPException(404, f"Place not found: {place_id}")
     data = read_yaml(path)
     try:
@@ -49,7 +78,12 @@ async def get_place(place_id: str, request: Request) -> dict:
 
 @router.post("")
 async def create_place(place: Place, request: Request) -> dict:
-    path = _places_dir(request) / f"{place.id}.yaml"
+    places_dir = _places_dir(request)
+    # Always create in nested layout
+    place_dir = places_dir / place.id
+    place_dir.mkdir(parents=True, exist_ok=True)
+    (place_dir / "scenes").mkdir(exist_ok=True)
+    path = place_dir / "place.yaml"
     if path.exists():
         raise HTTPException(409, f"Place already exists: {place.id}")
     write_yaml(path, place.model_dump())
@@ -58,19 +92,38 @@ async def create_place(place: Place, request: Request) -> dict:
 
 @router.put("/{place_id}")
 async def update_place(place_id: str, place: Place, request: Request) -> dict:
-    path = _places_dir(request) / f"{place_id}.yaml"
-    if not path.exists():
+    places_dir = _places_dir(request)
+    path = _find_place_file(places_dir, place_id)
+    if path is None:
         raise HTTPException(404, f"Place not found: {place_id}")
     if place.id != place_id:
-        delete_yaml(path)
-        path = _places_dir(request) / f"{place.id}.yaml"
+        # ID changed — remove old file/dir, create new nested dir
+        old_dir = places_dir / place_id
+        if old_dir.is_dir():
+            import shutil
+            new_dir = places_dir / place.id
+            shutil.move(str(old_dir), str(new_dir))
+            path = new_dir / "place.yaml"
+        else:
+            delete_yaml(path)
+            place_dir = places_dir / place.id
+            place_dir.mkdir(parents=True, exist_ok=True)
+            path = place_dir / "place.yaml"
     write_yaml(path, place.model_dump())
     return {"status": "updated", "id": place.id}
 
 
 @router.delete("/{place_id}")
 async def delete_place(place_id: str, request: Request) -> dict:
-    path = _places_dir(request) / f"{place_id}.yaml"
-    if not delete_yaml(path):
+    places_dir = _places_dir(request)
+    path = _find_place_file(places_dir, place_id)
+    if path is None:
         raise HTTPException(404, f"Place not found: {place_id}")
+    # For nested layout, remove the entire place directory
+    place_dir = places_dir / place_id
+    if place_dir.is_dir():
+        import shutil
+        shutil.rmtree(str(place_dir))
+    else:
+        delete_yaml(path)
     return {"status": "deleted", "id": place_id}

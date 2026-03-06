@@ -16,7 +16,7 @@ MOTIVATIONS: {motivations}
 CURRENT GOALS: {goals}
 CURRENT WANTS: {wants}
 
-You are currently at {location}. {atmosphere}
+You are currently at {location}. {scene_name}{atmosphere}
 {scene_description}
 
 RELATIONSHIP WITH PLAYER: {relationship_summary}
@@ -88,6 +88,11 @@ def build_writer_system_prompt(
     if storyteller_goal:
         direction = f"STORYTELLER DIRECTION: {storyteller_goal}"
 
+    # Include scene-level detail if available
+    scene_name = ""
+    if scene.scene and scene.scene.name:
+        scene_name = f"Specifically in the {scene.scene.name}. "
+
     return SYSTEM_PROMPT_TEMPLATE.format(
         name=character.name,
         personality=character.personality,
@@ -96,6 +101,7 @@ def build_writer_system_prompt(
         goals=_format_goals(character),
         wants=", ".join(character.wants) if character.wants else "Nothing pressing",
         location=scene.place.name,
+        scene_name=scene_name,
         atmosphere=scene.atmosphere,
         scene_description=scene_desc,
         relationship_summary=_format_relationship(player_relationship),
