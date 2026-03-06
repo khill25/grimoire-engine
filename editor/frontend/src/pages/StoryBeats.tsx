@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { story, generate } from "../api/client";
 import FormField, { inputStyle, textareaStyle, selectStyle, btnPrimary } from "../components/FormField";
 import GenerateModal from "../components/GenerateModal";
+import TriggerEditor from "../components/TriggerEditor";
 
 interface Beat {
   id: string;
@@ -91,7 +92,6 @@ export default function StoryBeats() {
             placeholder="e.g. Generate Act 2 beats where the player discovers the corporation is planning to automate the docks, leading to a choice between siding with the union or the corp."
             onGenerate={async (prompt, provider) => {
               const res = await generate.storyBeats(prompt, provider);
-              // Add generated beats to the story grimoire
               const currentGrimoire = await story.get();
               const lastAct = currentGrimoire.acts?.[currentGrimoire.acts.length - 1];
               if (lastAct) {
@@ -128,20 +128,21 @@ export default function StoryBeats() {
                 <option value="failed">Failed</option>
               </select>
             </FormField>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-              <FormField label="Trigger Type">
-                <input style={inputStyle} value={selected.trigger?.type || ""} onChange={(e) => setSelected({ ...selected, trigger: { ...selected.trigger, type: e.target.value } })} />
-              </FormField>
-              <FormField label="Trigger Condition">
-                <input style={inputStyle} value={selected.trigger?.condition || ""} onChange={(e) => setSelected({ ...selected, trigger: { ...selected.trigger, condition: e.target.value } })} />
-              </FormField>
-            </div>
-            <FormField label="Deadline (ticks)">
+            <FormField label="Trigger" hint="Determines when this beat activates during gameplay.">
+              <TriggerEditor
+                value={selected.trigger}
+                onChange={(trigger) => setSelected({ ...selected, trigger })}
+              />
+            </FormField>
+            <FormField label="Deadline (ticks)" hint="After activation, how many ticks before the beat expires. Leave empty for no deadline.">
               <input style={inputStyle} type="number" value={selected.deadline || ""} onChange={(e) => setSelected({ ...selected, deadline: parseInt(e.target.value) || undefined })} />
             </FormField>
             <label style={{ color: "#ccc", fontSize: "0.85rem" }}>
-              <input type="checkbox" checked={selected.allow_off_rails || false} onChange={(e) => setSelected({ ...selected, allow_off_rails: e.target.checked })} /> Allow Off-Rails (LLM can alter story here)
+              <input type="checkbox" checked={selected.allow_off_rails || false} onChange={(e) => setSelected({ ...selected, allow_off_rails: e.target.checked })} /> Allow Off-Rails
             </label>
+            <div style={{ fontSize: "0.75rem", color: "#666", marginTop: 2 }}>
+              When enabled, the LLM can take the story in unexpected directions at this beat.
+            </div>
             <div style={{ marginTop: "1.5rem" }}>
               <button onClick={saveBeat} disabled={saving} style={btnPrimary}>{saving ? "Saving..." : "Save Beat"}</button>
             </div>

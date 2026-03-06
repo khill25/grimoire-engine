@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { dialogue } from "../api/client";
 import FormField, { inputStyle, textareaStyle, selectStyle, btnPrimary, btnDanger } from "../components/FormField";
+import ConditionBuilder from "../components/ConditionBuilder";
+import StateChangesEditor from "../components/StateChangesEditor";
 import type { DialogueTree, DialogueNode, DialogueChoice } from "../types/models";
 
 const emptyTree: DialogueTree = {
@@ -153,7 +155,7 @@ export default function DialogueEditor() {
           <FormField label="Character ID">
             <input style={inputStyle} value={tree.character_id} onChange={(e) => setTree({ ...tree, character_id: e.target.value })} />
           </FormField>
-          <FormField label="Context">
+          <FormField label="Context" hint="When this tree activates, e.g. first_meeting, quest_active">
             <input style={inputStyle} value={tree.context} onChange={(e) => setTree({ ...tree, context: e.target.value })} placeholder="first_meeting, quest_active..." />
           </FormField>
           <FormField label="Root Node">
@@ -187,26 +189,30 @@ export default function DialogueEditor() {
             <FormField label="Text">
               <textarea style={{ ...textareaStyle, minHeight: 120 }} value={currentNode.text} onChange={(e) => updateNode({ text: e.target.value })} />
             </FormField>
-            <FormField label="Condition">
-              <input style={inputStyle} value={currentNode.condition || ""} onChange={(e) => updateNode({ condition: e.target.value || null })} placeholder="Optional condition..." />
-            </FormField>
-            <FormField label="State Changes" hint="JSON format, e.g. {&quot;met_mira&quot;: true}">
-              <input style={inputStyle}
-                value={currentNode.state_changes ? JSON.stringify(currentNode.state_changes) : ""}
-                onChange={(e) => {
-                  try {
-                    updateNode({ state_changes: e.target.value ? JSON.parse(e.target.value) : null });
-                  } catch { /* ignore parse errors while typing */ }
-                }}
+            <FormField label="Condition" hint="When set, this node is only reachable if the condition is met.">
+              <ConditionBuilder
+                key={currentNode.id + "-cond"}
+                value={currentNode.condition}
+                onChange={(c) => updateNode({ condition: c })}
               />
             </FormField>
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <label style={{ color: "#ccc", fontSize: "0.85rem" }}>
+            <FormField label="State Changes" hint="Flags set when this node fires. These become available as conditions in other nodes and beat triggers.">
+              <StateChangesEditor
+                key={currentNode.id + "-sc"}
+                value={currentNode.state_changes}
+                onChange={(sc) => updateNode({ state_changes: sc })}
+              />
+            </FormField>
+            <div style={{ display: "flex", gap: "1.5rem", marginBottom: "0.5rem" }}>
+              <label style={{ color: "#ccc", fontSize: "0.85rem" }} title="When enabled, the LLM can generate responses at this node instead of using only the authored text.">
                 <input type="checkbox" checked={currentNode.llm_escape} onChange={(e) => updateNode({ llm_escape: e.target.checked })} /> LLM Escape
               </label>
-              <label style={{ color: "#ccc", fontSize: "0.85rem" }}>
+              <label style={{ color: "#ccc", fontSize: "0.85rem" }} title="When enabled, the authored text is always used verbatim. The LLM will never replace or alter it.">
                 <input type="checkbox" checked={currentNode.is_key_moment} onChange={(e) => updateNode({ is_key_moment: e.target.checked })} /> Key Moment
               </label>
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "#555", marginBottom: "1rem" }}>
+              LLM Escape = LLM can improvise here. Key Moment = always use authored text exactly.
             </div>
 
             {/* Choices */}
@@ -214,17 +220,29 @@ export default function DialogueEditor() {
             {currentNode.choices.map((choice, i) => (
               <div key={i} style={{ background: "#0f0f23", border: "1px solid #333", borderRadius: 4, padding: "0.5rem", marginBottom: "0.5rem", position: "relative" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
-                  <input style={inputStyle} placeholder="Choice ID" value={choice.id} onChange={(e) => updateChoice(currentNode.id, i, { id: e.target.value })} />
-                  <select style={selectStyle} value={choice.next_node} onChange={(e) => updateChoice(currentNode.id, i, { next_node: e.target.value })}>
-                    <option value="">-- Next Node --</option>
-                    {tree.nodes.filter((n) => n.id !== currentNode.id).map((n) => (
-                      <option key={n.id} value={n.id}>{n.id}</option>
-                    ))}
-                  </select>
+                  <FormField label="Choice ID">
+                    <input style={inputStyle} value={choice.id} onChange={(e) => updateChoice(currentNode.id, i, { id: e.target.value })} />
+                  </FormField>
+                  <FormField label="Next Node">
+                    <select style={selectStyle} value={choice.next_node} onChange={(e) => updateChoice(currentNode.id, i, { next_node: e.target.value })}>
+                      <option value="">-- select --</option>
+                      {tree.nodes.filter((n) => n.id !== currentNode.id).map((n) => (
+                        <option key={n.id} value={n.id}>{n.id}</option>
+                      ))}
+                    </select>
+                  </FormField>
                 </div>
-                <input style={{ ...inputStyle, marginTop: 4 }} placeholder="Choice text" value={choice.text} onChange={(e) => updateChoice(currentNode.id, i, { text: e.target.value })} />
-                <input style={{ ...inputStyle, marginTop: 4 }} placeholder="Condition (optional)" value={choice.condition || ""} onChange={(e) => updateChoice(currentNode.id, i, { condition: e.target.value || null })} />
-                <button style={{ position: "absolute", top: 4, right: 4, background: "none", border: "none", color: "#a33", cursor: "pointer" }} onClick={() => removeChoice(i)}>X</button>
+                <FormField label="Choice Text">
+                  <input style={inputStyle} placeholder="What the player says" value={choice.text} onChange={(e) => updateChoice(currentNode.id, i, { text: e.target.value })} />
+                </FormField>
+                <FormField label="Condition" hint="Only show this choice when condition is met.">
+                  <ConditionBuilder
+                    key={`${currentNode.id}-choice-${i}-cond`}
+                    value={choice.condition}
+                    onChange={(c) => updateChoice(currentNode.id, i, { condition: c })}
+                  />
+                </FormField>
+                <button style={{ position: "absolute", top: 4, right: 4, background: "none", border: "none", color: "#a33", cursor: "pointer" }} onClick={() => removeChoice(i)}>×</button>
               </div>
             ))}
             <button onClick={addChoice} style={addBtnStyle}>+ Add Choice</button>
