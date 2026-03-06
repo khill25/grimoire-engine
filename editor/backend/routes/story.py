@@ -1,4 +1,4 @@
-"""Story bible CRUD routes."""
+"""Story bible CRUD routes — acts and beats."""
 
 from __future__ import annotations
 
@@ -28,27 +28,85 @@ def _story_path(request: Request) -> Path:
     return old
 
 
-@router.get("")
-async def get_story_bible(request: Request) -> dict:
+def _read_bible(request: Request) -> dict:
     path = _story_path(request)
     if not path.exists():
         return {"title": "", "description": "", "acts": []}
     return read_yaml(path)
 
 
+def _write_bible(request: Request, bible: dict) -> None:
+    path = _story_path(request)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    write_yaml(path, bible)
+
+
+# --- Story bible ---
+
+@router.get("")
+async def get_story_bible(request: Request) -> dict:
+    return _read_bible(request)
+
+
 @router.put("")
 async def update_story_bible(request: Request, data: dict) -> dict:
-    path = _story_path(request)
-    write_yaml(path, data)
+    _write_bible(request, data)
     return {"status": "updated"}
 
 
+# --- Acts ---
+
+@router.get("/acts")
+async def list_acts(request: Request) -> list[dict]:
+    bible = _read_bible(request)
+    return bible.get("acts", [])
+
+
+@router.post("/acts")
+async def create_act(data: dict, request: Request) -> dict:
+    bible = _read_bible(request)
+    acts = bible.setdefault("acts", [])
+    if not data.get("id"):
+        data["id"] = f"act_{len(acts) + 1}"
+    if not data.get("name"):
+        data["name"] = data["id"]
+    data.setdefault("description", "")
+    data.setdefault("beats", [])
+    acts.append(data)
+    _write_bible(request, bible)
+    return data
+
+
+@router.put("/acts/{act_id}")
+async def update_act(act_id: str, data: dict, request: Request) -> dict:
+    bible = _read_bible(request)
+    for i, act in enumerate(bible.get("acts", [])):
+        if act.get("id") == act_id:
+            # Preserve beats if not provided
+            if "beats" not in data:
+                data["beats"] = act.get("beats", [])
+            bible["acts"][i] = data
+            _write_bible(request, bible)
+            return {"status": "updated", "id": act_id}
+    raise HTTPException(404, f"Act not found: {act_id}")
+
+
+@router.delete("/acts/{act_id}")
+async def delete_act(act_id: str, request: Request) -> dict:
+    bible = _read_bible(request)
+    acts = bible.get("acts", [])
+    bible["acts"] = [a for a in acts if a.get("id") != act_id]
+    if len(bible["acts"]) == len(acts):
+        raise HTTPException(404, f"Act not found: {act_id}")
+    _write_bible(request, bible)
+    return {"status": "deleted", "id": act_id}
+
+
+# --- Beats ---
+
 @router.get("/beats")
 async def list_beats(request: Request) -> list[dict]:
-    path = _story_path(request)
-    if not path.exists():
-        return []
-    bible = read_yaml(path)
+    bible = _read_bible(request)
     beats = []
     for act in bible.get("acts", []):
         for beat in act.get("beats", []):
@@ -58,12 +116,28 @@ async def list_beats(request: Request) -> list[dict]:
     return beats
 
 
+@router.post("/acts/{act_id}/beats")
+async def create_beat(act_id: str, data: dict, request: Request) -> dict:
+    bible = _read_bible(request)
+    for act in bible.get("acts", []):
+        if act.get("id") == act_id:
+            beats = act.setdefault("beats", [])
+            if not data.get("id"):
+                data["id"] = f"beat_{len(beats) + 1}"
+            if not data.get("name"):
+                data["name"] = data["id"]
+            data.setdefault("description", "")
+            data.setdefault("status", "pending")
+            data.setdefault("trigger", {})
+            beats.append(data)
+            _write_bible(request, bible)
+            return data
+    raise HTTPException(404, f"Act not found: {act_id}")
+
+
 @router.put("/beats/{beat_id}")
 async def update_beat(beat_id: str, beat_data: dict, request: Request) -> dict:
-    path = _story_path(request)
-    if not path.exists():
-        raise HTTPException(404, "Story bible not found")
-    bible = read_yaml(path)
+    bible = _read_bible(request)
     found = False
     for act in bible.get("acts", []):
         for i, beat in enumerate(act.get("beats", [])):
@@ -78,5 +152,24 @@ async def update_beat(beat_id: str, beat_data: dict, request: Request) -> dict:
             break
     if not found:
         raise HTTPException(404, f"Beat not found: {beat_id}")
-    write_yaml(path, bible)
+    _write_bible(request, bible)
     return {"status": "updated", "id": beat_id}
+
+
+@router.delete("/beats/{beat_id}")
+async def delete_beat(beat_id: str, request: Request) -> dict:
+    bible = _read_bible(request)
+    found = False
+    for act in bible.get("acts", []):
+        beats = act.get("beats", [])
+        for i, beat in enumerate(beats):
+            if beat.get("id") == beat_id:
+                beats.pop(i)
+                found = True
+                break
+        if found:
+            break
+    if not found:
+        raise HTTPException(404, f"Beat not found: {beat_id}")
+    _write_bible(request, bible)
+    return {"status": "deleted", "id": beat_id}

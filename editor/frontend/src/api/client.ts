@@ -61,8 +61,14 @@ export const dialogue = {
 export const story = {
   get: () => request<any>("/story"),
   update: (data: any) => request<any>("/story", { method: "PUT", body: JSON.stringify(data) }),
+  listActs: () => request<any[]>("/story/acts"),
+  createAct: (data: any) => request<any>("/story/acts", { method: "POST", body: JSON.stringify(data) }),
+  updateAct: (id: string, data: any) => request<any>(`/story/acts/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteAct: (id: string) => request<any>(`/story/acts/${id}`, { method: "DELETE" }),
   listBeats: () => request<any[]>("/story/beats"),
+  createBeat: (actId: string, data: any) => request<any>(`/story/acts/${actId}/beats`, { method: "POST", body: JSON.stringify(data) }),
   updateBeat: (id: string, data: any) => request<any>(`/story/beats/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteBeat: (id: string) => request<any>(`/story/beats/${id}`, { method: "DELETE" }),
 };
 
 // Story metadata
