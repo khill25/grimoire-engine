@@ -71,7 +71,7 @@ def save_game(game_state: GameState, world_path: str, save_path: str,
 
     director_beats = []
     if director:
-        for beat in director.story_bible.beats:
+        for beat in director.grimoire.beats:
             director_beats.append(beat.model_dump())
 
     save_data = SaveData(

@@ -19,12 +19,12 @@ export default function StoryBeats() {
   const [beats, setBeats] = useState<Beat[]>([]);
   const [selected, setSelected] = useState<Beat | null>(null);
   const [saving, setSaving] = useState(false);
-  const [bible, setBible] = useState<any>(null);
+  const [grimoire, setGrimoire] = useState<any>(null);
   const [showGenerate, setShowGenerate] = useState(false);
 
   useEffect(() => {
     story.listBeats().then(setBeats);
-    story.get().then(setBible);
+    story.get().then(setGrimoire);
   }, []);
 
   const saveBeat = async () => {
@@ -47,9 +47,9 @@ export default function StoryBeats() {
       {/* Beat list */}
       <div style={{ width: 280, flexShrink: 0, overflow: "auto" }}>
         <h2 style={{ color: "#e0c097" }}>Story Beats</h2>
-        {bible && (
+        {grimoire && (
           <div style={{ fontSize: "0.8rem", color: "#888", marginBottom: "1rem" }}>
-            {bible.title || "Untitled Story"}
+            {grimoire.title || "Untitled Story"}
           </div>
         )}
         {Object.entries(grouped).map(([actName, actBeats]) => (
@@ -91,12 +91,12 @@ export default function StoryBeats() {
             placeholder="e.g. Generate Act 2 beats where the player discovers the corporation is planning to automate the docks, leading to a choice between siding with the union or the corp."
             onGenerate={async (prompt, provider) => {
               const res = await generate.storyBeats(prompt, provider);
-              // Add generated beats to the story bible
-              const currentBible = await story.get();
-              const lastAct = currentBible.acts?.[currentBible.acts.length - 1];
+              // Add generated beats to the story grimoire
+              const currentGrimoire = await story.get();
+              const lastAct = currentGrimoire.acts?.[currentGrimoire.acts.length - 1];
               if (lastAct) {
                 lastAct.beats = [...(lastAct.beats || []), ...res.generated];
-                await story.update(currentBible);
+                await story.update(currentGrimoire);
               }
               const updated = await story.listBeats();
               setBeats(updated);

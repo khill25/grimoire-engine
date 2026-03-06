@@ -1,4 +1,4 @@
-"""Story bible CRUD routes — acts and beats."""
+"""Grimoire CRUD routes — acts and beats."""
 
 from __future__ import annotations
 
@@ -12,14 +12,14 @@ router = APIRouter(prefix="/story", tags=["story"])
 
 
 def _story_path(request: Request) -> Path:
-    """Find story bible — checks new layout (grimoire.yaml) then old (story/story_bible.yaml)."""
+    """Find grimoire — checks new layout (grimoire.yaml) then old (story/story_grimoire.yaml)."""
     story_root = Path(request.app.state.story_path)
     # New layout
     grimoire = story_root / "grimoire.yaml"
     if grimoire.exists():
         return grimoire
     # Old layout
-    old = Path(request.app.state.world_path) / "story" / "story_bible.yaml"
+    old = Path(request.app.state.world_path) / "story" / "story_grimoire.yaml"
     if old.exists():
         return old
     # Default to new layout path for creation
@@ -28,29 +28,29 @@ def _story_path(request: Request) -> Path:
     return old
 
 
-def _read_bible(request: Request) -> dict:
+def _read_grimoire(request: Request) -> dict:
     path = _story_path(request)
     if not path.exists():
         return {"title": "", "description": "", "acts": []}
     return read_yaml(path)
 
 
-def _write_bible(request: Request, bible: dict) -> None:
+def _write_grimoire(request: Request, grimoire: dict) -> None:
     path = _story_path(request)
     path.parent.mkdir(parents=True, exist_ok=True)
-    write_yaml(path, bible)
+    write_yaml(path, grimoire)
 
 
-# --- Story bible ---
+# --- Grimoire ---
 
 @router.get("")
-async def get_story_bible(request: Request) -> dict:
-    return _read_bible(request)
+async def get_grimoire(request: Request) -> dict:
+    return _read_grimoire(request)
 
 
 @router.put("")
-async def update_story_bible(request: Request, data: dict) -> dict:
-    _write_bible(request, data)
+async def update_grimoire(request: Request, data: dict) -> dict:
+    _write_grimoire(request, data)
     return {"status": "updated"}
 
 
@@ -58,14 +58,14 @@ async def update_story_bible(request: Request, data: dict) -> dict:
 
 @router.get("/acts")
 async def list_acts(request: Request) -> list[dict]:
-    bible = _read_bible(request)
-    return bible.get("acts", [])
+    grimoire = _read_grimoire(request)
+    return grimoire.get("acts", [])
 
 
 @router.post("/acts")
 async def create_act(data: dict, request: Request) -> dict:
-    bible = _read_bible(request)
-    acts = bible.setdefault("acts", [])
+    grimoire = _read_grimoire(request)
+    acts = grimoire.setdefault("acts", [])
     if not data.get("id"):
         data["id"] = f"act_{len(acts) + 1}"
     if not data.get("name"):
@@ -73,32 +73,32 @@ async def create_act(data: dict, request: Request) -> dict:
     data.setdefault("description", "")
     data.setdefault("beats", [])
     acts.append(data)
-    _write_bible(request, bible)
+    _write_grimoire(request, grimoire)
     return data
 
 
 @router.put("/acts/{act_id}")
 async def update_act(act_id: str, data: dict, request: Request) -> dict:
-    bible = _read_bible(request)
-    for i, act in enumerate(bible.get("acts", [])):
+    grimoire = _read_grimoire(request)
+    for i, act in enumerate(grimoire.get("acts", [])):
         if act.get("id") == act_id:
             # Preserve beats if not provided
             if "beats" not in data:
                 data["beats"] = act.get("beats", [])
-            bible["acts"][i] = data
-            _write_bible(request, bible)
+            grimoire["acts"][i] = data
+            _write_grimoire(request, grimoire)
             return {"status": "updated", "id": act_id}
     raise HTTPException(404, f"Act not found: {act_id}")
 
 
 @router.delete("/acts/{act_id}")
 async def delete_act(act_id: str, request: Request) -> dict:
-    bible = _read_bible(request)
-    acts = bible.get("acts", [])
-    bible["acts"] = [a for a in acts if a.get("id") != act_id]
-    if len(bible["acts"]) == len(acts):
+    grimoire = _read_grimoire(request)
+    acts = grimoire.get("acts", [])
+    grimoire["acts"] = [a for a in acts if a.get("id") != act_id]
+    if len(grimoire["acts"]) == len(acts):
         raise HTTPException(404, f"Act not found: {act_id}")
-    _write_bible(request, bible)
+    _write_grimoire(request, grimoire)
     return {"status": "deleted", "id": act_id}
 
 
@@ -106,9 +106,9 @@ async def delete_act(act_id: str, request: Request) -> dict:
 
 @router.get("/beats")
 async def list_beats(request: Request) -> list[dict]:
-    bible = _read_bible(request)
+    grimoire = _read_grimoire(request)
     beats = []
-    for act in bible.get("acts", []):
+    for act in grimoire.get("acts", []):
         for beat in act.get("beats", []):
             beat["act_id"] = act.get("id", "")
             beat["act_name"] = act.get("name", "")
@@ -118,8 +118,8 @@ async def list_beats(request: Request) -> list[dict]:
 
 @router.post("/acts/{act_id}/beats")
 async def create_beat(act_id: str, data: dict, request: Request) -> dict:
-    bible = _read_bible(request)
-    for act in bible.get("acts", []):
+    grimoire = _read_grimoire(request)
+    for act in grimoire.get("acts", []):
         if act.get("id") == act_id:
             beats = act.setdefault("beats", [])
             if not data.get("id"):
@@ -130,16 +130,16 @@ async def create_beat(act_id: str, data: dict, request: Request) -> dict:
             data.setdefault("status", "pending")
             data.setdefault("trigger", {})
             beats.append(data)
-            _write_bible(request, bible)
+            _write_grimoire(request, grimoire)
             return data
     raise HTTPException(404, f"Act not found: {act_id}")
 
 
 @router.put("/beats/{beat_id}")
 async def update_beat(beat_id: str, beat_data: dict, request: Request) -> dict:
-    bible = _read_bible(request)
+    grimoire = _read_grimoire(request)
     found = False
-    for act in bible.get("acts", []):
+    for act in grimoire.get("acts", []):
         for i, beat in enumerate(act.get("beats", [])):
             if beat.get("id") == beat_id:
                 # Preserve act-level keys we added
@@ -152,15 +152,15 @@ async def update_beat(beat_id: str, beat_data: dict, request: Request) -> dict:
             break
     if not found:
         raise HTTPException(404, f"Beat not found: {beat_id}")
-    _write_bible(request, bible)
+    _write_grimoire(request, grimoire)
     return {"status": "updated", "id": beat_id}
 
 
 @router.delete("/beats/{beat_id}")
 async def delete_beat(beat_id: str, request: Request) -> dict:
-    bible = _read_bible(request)
+    grimoire = _read_grimoire(request)
     found = False
-    for act in bible.get("acts", []):
+    for act in grimoire.get("acts", []):
         beats = act.get("beats", [])
         for i, beat in enumerate(beats):
             if beat.get("id") == beat_id:
@@ -171,5 +171,5 @@ async def delete_beat(beat_id: str, request: Request) -> dict:
             break
     if not found:
         raise HTTPException(404, f"Beat not found: {beat_id}")
-    _write_bible(request, bible)
+    _write_grimoire(request, grimoire)
     return {"status": "deleted", "id": beat_id}

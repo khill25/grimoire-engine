@@ -254,11 +254,11 @@ def test_load_dialogue_trees():
     assert bosk_tree.character_id == "bosk"
 
 
-def test_load_story_bible():
+def test_load_grimoire():
     world = load_world(WORLD_PATH)
-    assert world.story_bible["title"] == "Lowport Station — Act 1"
-    assert len(world.story_bible["acts"]) == 1
-    beats = world.story_bible["acts"][0]["beats"]
+    assert world.grimoire["title"] == "Lowport Station — Act 1"
+    assert len(world.grimoire["acts"]) == 1
+    beats = world.grimoire["acts"][0]["beats"]
     assert len(beats) >= 5
 
 
@@ -313,5 +313,5 @@ def test_load_story_layout_places_have_scenes():
 
 def test_load_story_layout_grimoire():
     world = load_world(STORY_PATH)
-    assert world.story_bible["title"] == "Lowport Station — Act 1"
-    assert len(world.story_bible["acts"]) >= 1
+    assert world.grimoire["title"] == "Lowport Station — Act 1"
+    assert len(world.grimoire["acts"]) >= 1

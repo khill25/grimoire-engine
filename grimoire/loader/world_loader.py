@@ -26,7 +26,7 @@ class WorldData:
         self.scenes: dict[str, Scene] = {}
         self.factions: dict[str, Faction] = {}
         self.dialogue_trees: dict[str, DialogueTree] = {}
-        self.story_bible: dict = {}
+        self.grimoire: dict = {}
         self.world_model: World | None = None
         self.story_model: Story | None = None
 
@@ -137,10 +137,10 @@ def _load_world_layout(root: Path, world: WorldData) -> None:
     world.factions = _load_directory(root / "factions", Faction)
     world.dialogue_trees = _load_directory(root / "dialogue", DialogueTree)
 
-    # Story bible
+    # Grimoire (old layout: story/story_bible.yaml)
     story_file = root / "story" / "story_bible.yaml"
     if story_file.exists():
-        world.story_bible = _load_yaml(story_file)
+        world.grimoire = _load_yaml(story_file)
 
 
 def _load_story_layout(root: Path, world: WorldData) -> None:
@@ -171,7 +171,7 @@ def _load_story_layout(root: Path, world: WorldData) -> None:
     # Places + scenes (nested structure)
     world.places, world.scenes = _load_places_nested(world_dir / "places")
 
-    # Story bible (grimoire.yaml at story root)
+    # Grimoire (grimoire.yaml at story root)
     grimoire_file = root / "grimoire.yaml"
     if grimoire_file.exists():
-        world.story_bible = _load_yaml(grimoire_file)
+        world.grimoire = _load_yaml(grimoire_file)

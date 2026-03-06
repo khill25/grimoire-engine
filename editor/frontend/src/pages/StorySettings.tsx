@@ -33,7 +33,7 @@ interface Counts {
 export default function StorySettings() {
   const navigate = useNavigate();
   const [meta, setMeta] = useState<Record<string, any>>({});
-  const [bible, setBible] = useState<Record<string, any>>({});
+  const [grimoire, setGrimoire] = useState<Record<string, any>>({});
   const [acts, setActs] = useState<Act[]>([]);
   const [counts, setCounts] = useState<Counts>({ places: 0, scenes: 0, characters: 0, factions: 0, dialogue: 0 });
   const [saving, setSaving] = useState(false);
@@ -55,7 +55,7 @@ export default function StorySettings() {
         dialogue.list().catch(() => []),
       ]);
       setMeta(m);
-      setBible(b);
+      setGrimoire(b);
       setActs(b.acts || []);
       setCounts({ places: p.length, scenes: s.length, characters: c.length, factions: f.length, dialogue: d.length });
     } catch (e: any) {
@@ -76,11 +76,11 @@ export default function StorySettings() {
     setSaving(false);
   };
 
-  const saveBible = async () => {
+  const saveGrimoire = async () => {
     setSaving(true);
     setError("");
     try {
-      await story.update({ ...bible, acts });
+      await story.update({ ...grimoire, acts });
     } catch (e: any) {
       setError(e.message);
     }
@@ -164,7 +164,7 @@ export default function StorySettings() {
 
   return (
     <div style={{ display: "flex", gap: "1.5rem", height: "calc(100vh - 3rem)" }}>
-      {/* Left column: story meta + bible + acts */}
+      {/* Left column: story meta + grimoire + acts */}
       <div style={{ flex: 1, overflow: "auto" }}>
         <h1 style={{ color: "#e0c097", margin: "0 0 1rem 0" }}>Story</h1>
         {error && <div style={{ color: "#f88", marginBottom: "1rem" }}>{error}</div>}
@@ -216,11 +216,11 @@ export default function StorySettings() {
           </button>
         </Section>
 
-        {/* Story Bible header */}
-        <Section title="Story Bible (Grimoire)">
+        {/* Grimoire */}
+        <Section title="Grimoire">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
             <FormField label="Title">
-              <input style={inputStyle} value={bible.title || ""} onChange={(e) => setBible({ ...bible, title: e.target.value })} />
+              <input style={inputStyle} value={grimoire.title || ""} onChange={(e) => setGrimoire({ ...grimoire, title: e.target.value })} />
             </FormField>
             <FormField label="Summary">
               <div style={{ color: "#888", fontSize: "0.8rem", marginTop: 8 }}>
@@ -229,11 +229,11 @@ export default function StorySettings() {
             </FormField>
           </div>
           <FormField label="Description">
-            <textarea style={{ ...textareaStyle, minHeight: 60 }} value={bible.description || ""} onChange={(e) => setBible({ ...bible, description: e.target.value })} />
+            <textarea style={{ ...textareaStyle, minHeight: 60 }} value={grimoire.description || ""} onChange={(e) => setGrimoire({ ...grimoire, description: e.target.value })} />
           </FormField>
           <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button onClick={saveBible} disabled={saving} style={btnPrimary}>
-              {saving ? "Saving..." : "Save Bible"}
+            <button onClick={saveGrimoire} disabled={saving} style={btnPrimary}>
+              {saving ? "Saving..." : "Save Grimoire"}
             </button>
           </div>
         </Section>
@@ -338,11 +338,11 @@ export default function StorySettings() {
             placeholder="e.g. Generate Act 2 beats where the player discovers the corporation is planning to automate the docks, leading to a choice between siding with the union or the corp."
             onGenerate={async (prompt, provider) => {
               const res = await generate.storyBeats(prompt, provider);
-              const currentBible = await story.get();
-              const lastAct = currentBible.acts?.[currentBible.acts.length - 1];
+              const currentGrimoire = await story.get();
+              const lastAct = currentGrimoire.acts?.[currentGrimoire.acts.length - 1];
               if (lastAct) {
                 lastAct.beats = [...(lastAct.beats || []), ...res.generated];
-                await story.update(currentBible);
+                await story.update(currentGrimoire);
               }
               await load();
             }}

@@ -6,7 +6,7 @@ from typing import Any
 
 from grimoire.dialogue.matcher import DialogueMatcher
 from grimoire.dialogue.tree_runner import DialogueState
-from grimoire.director.director import Director, parse_story_bible
+from grimoire.director.director import Director, parse_grimoire
 from grimoire.engine.context import build_writer_messages, build_writer_system_prompt
 from grimoire.engine.events import create_event
 from grimoire.engine.game_state import GameState, PlayerAction, SceneContext, TickResult
@@ -69,11 +69,11 @@ class GameSession:
         self.vector_store = vector_store
 
         # Director
-        if world_data.story_bible:
-            bible = parse_story_bible(world_data.story_bible)
-            self.director = Director(bible)
+        if world_data.grimoire:
+            grimoire = parse_grimoire(world_data.grimoire)
+            self.director = Director(grimoire)
         else:
-            self.director = Director(parse_story_bible({"acts": []}))
+            self.director = Director(parse_grimoire({"acts": []}))
 
         # Storyteller
         self.storyteller = Storyteller(self.director, self.game_state)

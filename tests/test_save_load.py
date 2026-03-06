@@ -4,7 +4,7 @@ import json
 import tempfile
 from pathlib import Path
 
-from grimoire.director.director import Director, parse_story_bible
+from grimoire.director.director import Director, parse_grimoire
 from grimoire.engine.game_state import GameState, PlayerAction
 from grimoire.loader.world_loader import load_world
 from grimoire.storage.save_load import load_game, restore_game_state, save_game
@@ -16,8 +16,8 @@ def _setup():
     world = load_world(WORLD_PATH)
     state = GameState(world)
     state.player_location = "rusty_tap"
-    bible = parse_story_bible(world.story_bible)
-    director = Director(bible)
+    grimoire = parse_grimoire(world.grimoire)
+    director = Director(grimoire)
     return world, state, director
 
 
@@ -62,8 +62,8 @@ def test_restore():
     # Load into a fresh game state
     world2 = load_world(WORLD_PATH)
     state2 = GameState(world2)
-    bible2 = parse_story_bible(world2.story_bible)
-    director2 = Director(bible2)
+    grimoire2 = parse_grimoire(world2.grimoire)
+    director2 = Director(grimoire2)
 
     save_data = load_game(save_path)
     restore_game_state(save_data, state2, director2)

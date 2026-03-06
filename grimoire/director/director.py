@@ -21,7 +21,7 @@ class StoryBeat(BaseModel):
     allow_off_rails: bool = False
 
 
-class StoryBible(BaseModel):
+class Grimoire(BaseModel):
     title: str
     description: str
     beats: list[StoryBeat]
@@ -32,8 +32,8 @@ class ProtectionResult(BaseModel):
     narration: str = ""
 
 
-def parse_story_bible(raw: dict) -> StoryBible:
-    """Parse a raw story bible dict into structured StoryBible."""
+def parse_grimoire(raw: dict) -> Grimoire:
+    """Parse a raw grimoire dict into structured Grimoire."""
     beats: list[StoryBeat] = []
     for act in raw.get("acts", []):
         for beat_data in act.get("beats", []):
@@ -48,7 +48,7 @@ def parse_story_bible(raw: dict) -> StoryBible:
                 deadline=beat_data.get("deadline"),
                 allow_off_rails=beat_data.get("allow_off_rails", False),
             ))
-    return StoryBible(
+    return Grimoire(
         title=raw.get("title", ""),
         description=raw.get("description", ""),
         beats=beats,
@@ -58,9 +58,9 @@ def parse_story_bible(raw: dict) -> StoryBible:
 class Director:
     """Lightweight MVP director — beat tracking and trigger evaluation."""
 
-    def __init__(self, story_bible: StoryBible) -> None:
-        self.story_bible = story_bible
-        self._beats = {b.id: b for b in story_bible.beats}
+    def __init__(self, grimoire: Grimoire) -> None:
+        self.grimoire = grimoire
+        self._beats = {b.id: b for b in grimoire.beats}
 
         # Auto-activate any automatic beats
         for beat in self._beats.values():
