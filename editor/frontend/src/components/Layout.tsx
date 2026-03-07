@@ -19,6 +19,7 @@ const gameNav = [
 
 const toolsNav = [
   { to: "/validate", label: "Validate" },
+  { to: "/project", label: "Project Settings" },
 ];
 
 function NavSection({ label, items }: { label: string; items: { to: string; label: string }[] }) {

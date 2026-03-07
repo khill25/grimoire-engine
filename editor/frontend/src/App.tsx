@@ -19,6 +19,7 @@ import WorldGraph from "./pages/WorldGraph";
 import Items from "./pages/Items";
 import ItemEditor from "./pages/ItemEditor";
 import GameTypes from "./pages/GameTypes";
+import ProjectSettings from "./pages/ProjectSettings";
 
 export default function App() {
   return (
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="/game-types" element={<GameTypes />} />
           <Route path="/story" element={<StoryBeats />} />
           <Route path="/validate" element={<Validate />} />
+          <Route path="/project" element={<ProjectSettings />} />
         </Route>
       </Routes>
     </BrowserRouter>

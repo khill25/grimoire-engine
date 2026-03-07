@@ -86,6 +86,13 @@ export const gameTypes = {
   update: (data: any) => request<any>("/game-types", { method: "PUT", body: JSON.stringify(data) }),
 };
 
+// Project settings
+export const projectSettings = {
+  get: () => request<any>("/project"),
+  update: (data: any) => request<any>("/project", { method: "PUT", body: JSON.stringify(data) }),
+  browse: (path: string) => request<any>(`/project/browse?path=${encodeURIComponent(path)}`),
+};
+
 // Story metadata
 export const storyMeta = {
   get: () => request<any>("/story-meta"),

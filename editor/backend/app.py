@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRouter
 
-from editor.backend.routes import characters, places, factions, dialogue, story, generate, scenes, validate, items, game_types
+from editor.backend.routes import characters, places, factions, dialogue, story, generate, scenes, validate, items, game_types, project
 from editor.backend.yaml_io import read_yaml, write_yaml
 
 
@@ -114,6 +114,7 @@ def create_app(world_path: str = "", game_data_path: str = "") -> FastAPI:
     api.include_router(validate.router)
     api.include_router(items.router)
     api.include_router(game_types.router)
+    api.include_router(project.router)
 
     app.include_router(api)
 
