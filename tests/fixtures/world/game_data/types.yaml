@@ -16,6 +16,11 @@ stats:
     description: The power to undo, remake, and reshape. Derived from balance of other pillars.
     primary: false
     derived: true
+    formula: average
+    sources:
+      - will
+      - emotion
+      - mind
 
 resources:
   - id: hp

@@ -193,11 +193,25 @@ export default function GameTypes() {
                       )}
                     </div>
                     {category.fields.includes("primary") && (
-                      <label style={{ color: "#ccc", fontSize: "0.8rem" }}>
-                        <input type="checkbox" checked={entry.primary !== false} onChange={(e) => updateEntry(i, { primary: e.target.checked, derived: !e.target.checked ? true : undefined })} />
-                        {" "}Primary stat (players allocate points)
-                        {entry.derived && <span style={{ color: "#888", marginLeft: 8 }}>— Derived</span>}
-                      </label>
+                      <>
+                        <label style={{ color: "#ccc", fontSize: "0.8rem" }}>
+                          <input type="checkbox" checked={entry.primary !== false} onChange={(e) => updateEntry(i, {
+                            primary: e.target.checked,
+                            derived: !e.target.checked ? true : undefined,
+                            formula: !e.target.checked ? (entry.formula || "average") : undefined,
+                            sources: !e.target.checked ? (entry.sources || []) : undefined,
+                          })} />
+                          {" "}Primary stat (players allocate points)
+                          {entry.derived && <span style={{ color: "#888", marginLeft: 8 }}>— Derived</span>}
+                        </label>
+                        {entry.derived && (
+                          <DerivedStatConfig
+                            entry={entry}
+                            allStats={entries}
+                            onUpdate={(patch) => updateEntry(i, patch)}
+                          />
+                        )}
+                      </>
                     )}
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingTop: 20 }}>
@@ -221,6 +235,96 @@ function getGridColumns(category: { fields: string[] }): string {
   if (category.fields.includes("multiplier")) return "80px 1fr 100px";
   if (category.fields.includes("pillar")) return "120px 1fr 120px";
   return "120px 1fr";
+}
+
+const DERIVED_FORMULAS = [
+  { id: "average", label: "Average", desc: "Mean of source stats" },
+  { id: "min", label: "Minimum", desc: "Lowest source stat" },
+  { id: "max", label: "Maximum", desc: "Highest source stat" },
+  { id: "sum", label: "Sum", desc: "Total of all source stats" },
+];
+
+function calcDerivedPoints(
+  stat: TypeEntry,
+  sourceValues: Record<string, number>,
+  allStats: TypeEntry[],
+): number {
+  const formula = stat.formula || "average";
+  const primaryStats = allStats.filter((s) => !s.derived);
+  const sourceIds = stat.sources && stat.sources.length > 0
+    ? stat.sources
+    : primaryStats.map((s) => s.id);
+  const values = sourceIds.map((id) => sourceValues[id] ?? 0).filter((v) => v !== undefined);
+  if (values.length === 0) return 0;
+  switch (formula) {
+    case "min": return Math.min(...values);
+    case "max": return Math.max(...values);
+    case "sum": return values.reduce((a, b) => a + b, 0);
+    case "average":
+    default:
+      return Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 100) / 100;
+  }
+}
+
+function DerivedStatConfig({ entry, allStats, onUpdate }: {
+  entry: TypeEntry;
+  allStats: TypeEntry[];
+  onUpdate: (patch: Partial<TypeEntry>) => void;
+}) {
+  const primaryStats = allStats.filter((s) => !s.derived && s.id !== entry.id);
+  const sources = entry.sources || [];
+  const formula = entry.formula || "average";
+
+  const toggleSource = (statId: string) => {
+    const next = sources.includes(statId)
+      ? sources.filter((s) => s !== statId)
+      : [...sources, statId];
+    onUpdate({ sources: next });
+  };
+
+  return (
+    <div style={{ background: "#111827", border: "1px solid #333", borderRadius: 4, padding: "0.6rem", marginTop: 4 }}>
+      <div style={{ display: "flex", gap: "1rem", alignItems: "start", flexWrap: "wrap" }}>
+        <FormField label="Formula">
+          <select
+            style={{ ...inputStyle, width: 140 }}
+            value={formula}
+            onChange={(e) => onUpdate({ formula: e.target.value })}
+          >
+            {DERIVED_FORMULAS.map((f) => (
+              <option key={f.id} value={f.id}>{f.label} — {f.desc}</option>
+            ))}
+          </select>
+        </FormField>
+        <div>
+          <div style={{ color: "#888", fontSize: "0.75rem", marginBottom: 4 }}>
+            Sources {sources.length === 0 && <span style={{ color: "#666" }}>(all primaries if none selected)</span>}
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            {primaryStats.map((s) => (
+              <label key={s.id} style={{
+                color: sources.includes(s.id) ? "#e0c097" : "#666",
+                fontSize: "0.8rem",
+                cursor: "pointer",
+                background: sources.includes(s.id) ? "#1a2940" : "transparent",
+                border: `1px solid ${sources.includes(s.id) ? "#e0c097" : "#333"}`,
+                borderRadius: 3,
+                padding: "2px 8px",
+              }}>
+                <input
+                  type="checkbox"
+                  checked={sources.includes(s.id)}
+                  onChange={() => toggleSource(s.id)}
+                  style={{ display: "none" }}
+                />
+                {s.name}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // Grid-based editor: stats as rows, resources as columns, values are the scaling weights
@@ -301,23 +405,31 @@ function ResourceScalingMatrix({ stats, resources, scaling, onUpdate }: {
           Preview: 10 points in each primary stat
         </h3>
         <p style={{ color: "#666", fontSize: "0.75rem", marginBottom: "0.5rem" }}>
-          Resource pools with 10 points in each primary stat. Derived stats are calculated as the average of all primaries.
+          Resource pools with 10 points in each primary stat. Derived stats use their configured formula.
         </p>
         {(() => {
           const primaryStats = stats.filter((s) => !s.derived);
           const derivedStats = stats.filter((s) => s.derived);
           const primaryPoints = 10;
-          const derivedPoints = primaryStats.length > 0 ? (primaryPoints * primaryStats.length) / primaryStats.length : 0;
           // Build effective points per stat
           const statPoints: Record<string, number> = {};
           primaryStats.forEach((s) => { statPoints[s.id] = primaryPoints; });
-          derivedStats.forEach((s) => { statPoints[s.id] = derivedPoints; });
+          derivedStats.forEach((s) => {
+            statPoints[s.id] = calcDerivedPoints(s, statPoints, stats);
+          });
 
           return (
             <>
               {derivedStats.length > 0 && (
                 <div style={{ color: "#888", fontSize: "0.75rem", marginBottom: "0.5rem" }}>
-                  {derivedStats.map((s) => s.name).join(", ")}: {derivedPoints} (derived)
+                  {derivedStats.map((s) => {
+                    const formula = s.formula || "average";
+                    const sourceIds = s.sources && s.sources.length > 0
+                      ? s.sources
+                      : primaryStats.map((p) => p.id);
+                    const sourceNames = sourceIds.map((id) => stats.find((st) => st.id === id)?.name || id);
+                    return `${s.name}: ${statPoints[s.id]} (${formula} of ${sourceNames.join(", ")})`;
+                  }).join(" · ")}
                 </div>
               )}
               <div style={{ display: "grid", gridTemplateColumns: `repeat(${resources.length}, 1fr)`, gap: "0.5rem" }}>

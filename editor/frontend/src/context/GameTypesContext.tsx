@@ -9,6 +9,8 @@ export interface TypeEntry {
   multiplier?: number;
   primary?: boolean;
   derived?: boolean;
+  formula?: string;
+  sources?: string[];
   pillar?: string;
 }
 
