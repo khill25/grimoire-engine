@@ -7,21 +7,28 @@ export interface TypeEntry {
   description?: string;
   color?: string;
   multiplier?: number;
+  primary?: boolean;
+  derived?: boolean;
+  pillar?: string;
 }
 
 export interface GameTypes {
   stats: TypeEntry[];
+  resources: TypeEntry[];
+  resource_scaling: Record<string, Record<string, number>>;
   damage_types: TypeEntry[];
   equipment_slots: TypeEntry[];
   item_types: TypeEntry[];
   rarities: TypeEntry[];
   scaling_grades: TypeEntry[];
   effect_types: TypeEntry[];
-  [key: string]: TypeEntry[];
+  [key: string]: TypeEntry[] | Record<string, Record<string, number>>;
 }
 
 const empty: GameTypes = {
   stats: [],
+  resources: [],
+  resource_scaling: {},
   damage_types: [],
   equipment_slots: [],
   item_types: [],
@@ -66,16 +73,20 @@ export function GameTypesProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { reload(); }, [reload]);
 
   const lookup = useCallback((category: string, id: string) => {
-    return (types[category] || []).find((e) => e.id === id);
+    const cat = types[category];
+    if (!Array.isArray(cat)) return undefined;
+    return cat.find((e) => e.id === id);
   }, [types]);
 
   const options = useCallback((category: string) => {
-    return (types[category] || []).map((e) => ({ value: e.id, label: e.name }));
+    const cat = types[category];
+    if (!Array.isArray(cat)) return [];
+    return cat.map((e) => ({ value: e.id, label: e.name }));
   }, [types]);
 
   const validate = useCallback((category: string, id: string) => {
     const entries = types[category];
-    if (!entries || entries.length === 0) return true; // no schema = anything goes
+    if (!Array.isArray(entries) || entries.length === 0) return true;
     return entries.some((e) => e.id === id);
   }, [types]);
 

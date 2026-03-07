@@ -1,39 +1,73 @@
 stats:
-  - id: strength
-    name: Strength
-    description: Physical power, melee damage scaling
-  - id: dexterity
-    name: Dexterity
-    description: Agility, speed, finesse weapon scaling
-  - id: vitality
-    name: Vitality
-    description: Health pool and physical resilience
-  - id: endurance
-    name: Endurance
-    description: Stamina pool and equip load
-  - id: intelligence
-    name: Intelligence
-    description: Sorcery power and mana pool
-  - id: faith
-    name: Faith
-    description: Incantation power and holy scaling
-  - id: arcane
-    name: Arcane
-    description: Discovery, status buildup, certain weapon scaling
+  - id: will
+    name: Will
+    description: The ability to impose your existence onto reality. Rigid, protective, forceful.
+    primary: true
+  - id: emotion
+    name: Emotion
+    description: Unfiltered wild energy. Volatile, bright, passionate, impulsive.
+    primary: true
+  - id: mind
+    name: Mind
+    description: The perception of how things are connected. Mathematical, geometric, logical.
+    primary: true
+  - id: understanding
+    name: Understanding
+    description: The power to undo, remake, and reshape. Derived from balance of other pillars.
+    primary: false
+    derived: true
+
+resources:
+  - id: hp
+    name: HP
+    description: Health points
+  - id: stamina
+    name: Stamina
+    description: Physical action resource
+  - id: mana
+    name: Mana
+    description: Magic energy pool
+  - id: equip_load
+    name: Equip Load
+    description: Maximum equipment weight
+  - id: mana_regen
+    name: Mana Regen
+    description: Mana recovery rate
+
+resource_scaling:
+  will:
+    hp: 5
+    stamina: 2
+    equip_load: 2
+  emotion:
+    hp: 1
+    stamina: 5
+    equip_load: 2
+  mind:
+    equip_load: 1
+    mana_regen: 5
+  understanding:
+    hp: 1
+    stamina: 1
+    mana: 1
+    mana_regen: 1
+    equip_load: 1
 
 damage_types:
   - id: physical
     name: Physical
-  - id: fire
-    name: Fire
-  - id: ice
-    name: Ice
-  - id: lightning
-    name: Lightning
-  - id: holy
-    name: Holy
+  - id: kinetic
+    name: Kinetic
+    pillar: will
+  - id: elemental
+    name: Elemental
+    pillar: emotion
+  - id: resonance
+    name: Resonance
+    pillar: mind
   - id: void
     name: Void
+    pillar: understanding
 
 equipment_slots:
   - id: main_hand
@@ -50,6 +84,8 @@ equipment_slots:
     name: Feet
   - id: accessory
     name: Accessory
+  - id: robotic_arm
+    name: Robotic Arm
 
 item_types:
   - id: consumable
@@ -64,6 +100,10 @@ item_types:
     name: Key Item
   - id: material
     name: Material
+  - id: data_relic
+    name: Data Relic
+  - id: augment
+    name: Augment
 
 rarities:
   - id: common
@@ -112,13 +152,13 @@ effect_types:
     name: Restore Stamina
   - id: restore_mana
     name: Restore Mana
-  - id: buff_strength
-    name: Buff Strength
-  - id: buff_dexterity
-    name: Buff Dexterity
+  - id: buff_will
+    name: Buff Will
+  - id: buff_emotion
+    name: Buff Emotion
+  - id: buff_mind
+    name: Buff Mind
   - id: buff_defense
     name: Buff Defense
-  - id: cure_poison
-    name: Cure Poison
   - id: cure_all
     name: Cure All

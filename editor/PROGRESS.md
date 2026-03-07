@@ -151,6 +151,10 @@ editor/
 - [x] Separate game data path (`--game-data` CLI flag)
 - [x] Game Types system — `types.yaml` defines valid stats, damage types, equipment slots, rarities, scaling grades, effect types
 - [x] Game Types editor page (add/remove/reorder entries per category)
+- [x] Resource scaling matrix editor — grid of stats × resources with tunable weights
+- [x] Pillar-based stats: Will, Emotion, Mind (primary), Understanding (derived)
+- [x] Resources: HP, Stamina, Mana, Equip Load, Mana Regen
+- [x] Damage types linked to pillars (kinetic→Will, elemental→Emotion, resonance→Mind, void→Understanding)
 - [x] GameTypesContext (React context, loads types once for all pages)
 - [x] TypeSelect component (schema-validated dropdowns with invalid value warnings)
 - [x] Item CRUD backend (list, get, create, update, delete → YAML)

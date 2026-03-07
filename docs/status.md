@@ -65,6 +65,8 @@ Current state of Grimoire Engine, World Builder Editor, and Shattered Kingdom.
 - [x] Trigger editor component (type dropdown + contextual conditions)
 - [x] Game Types system (schema-driven validation for stats, damage types, slots, rarities, etc.)
 - [x] Game Types editor page (add/remove/reorder type entries per category)
+- [x] Pillar-based stat system (Will, Emotion, Mind, Understanding) with resource scaling matrix
+- [x] Resource scaling editor — grid UI to tune how each stat contributes to HP, Stamina, Mana, etc.
 - [x] TypeSelect component (schema-validated dropdowns, invalid value warnings)
 - [x] GameTypesContext (React context, loads types once, available to all pages)
 - [x] Item CRUD (list, get, create, update, delete → YAML in game_data/items/)
