@@ -298,24 +298,44 @@ function ResourceScalingMatrix({ stats, resources, scaling, onUpdate }: {
       {/* Preview: show what a 10-point investment gives */}
       <div style={{ marginTop: "1.5rem" }}>
         <h3 style={{ color: "#e0c097", fontSize: "0.95rem", borderBottom: "1px solid #333", paddingBottom: 4 }}>
-          Preview: 10 points invested
+          Preview: 10 points in each primary stat
         </h3>
         <p style={{ color: "#666", fontSize: "0.75rem", marginBottom: "0.5rem" }}>
-          What each resource pool looks like with 10 points in each stat.
+          Resource pools with 10 points in each primary stat. Derived stats are calculated as the average of all primaries.
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${resources.length}, 1fr)`, gap: "0.5rem" }}>
-          {resources.map((resource) => {
-            const total = stats.reduce((sum, stat) => {
-              return sum + (scaling[stat.id]?.[resource.id] || 0) * 10;
-            }, 0);
-            return (
-              <div key={resource.id} style={{ background: "#1a1a2e", border: "1px solid #333", borderRadius: 4, padding: "0.5rem", textAlign: "center" }}>
-                <div style={{ color: "#e0c097", fontSize: "1.1rem", fontWeight: 600 }}>{total}</div>
-                <div style={{ color: "#888", fontSize: "0.7rem", textTransform: "uppercase" }}>{resource.name}</div>
+        {(() => {
+          const primaryStats = stats.filter((s) => !s.derived);
+          const derivedStats = stats.filter((s) => s.derived);
+          const primaryPoints = 10;
+          const derivedPoints = primaryStats.length > 0 ? (primaryPoints * primaryStats.length) / primaryStats.length : 0;
+          // Build effective points per stat
+          const statPoints: Record<string, number> = {};
+          primaryStats.forEach((s) => { statPoints[s.id] = primaryPoints; });
+          derivedStats.forEach((s) => { statPoints[s.id] = derivedPoints; });
+
+          return (
+            <>
+              {derivedStats.length > 0 && (
+                <div style={{ color: "#888", fontSize: "0.75rem", marginBottom: "0.5rem" }}>
+                  {derivedStats.map((s) => s.name).join(", ")}: {derivedPoints} (derived)
+                </div>
+              )}
+              <div style={{ display: "grid", gridTemplateColumns: `repeat(${resources.length}, 1fr)`, gap: "0.5rem" }}>
+                {resources.map((resource) => {
+                  const total = stats.reduce((sum, stat) => {
+                    return sum + (scaling[stat.id]?.[resource.id] || 0) * (statPoints[stat.id] || 0);
+                  }, 0);
+                  return (
+                    <div key={resource.id} style={{ background: "#1a1a2e", border: "1px solid #333", borderRadius: 4, padding: "0.5rem", textAlign: "center" }}>
+                      <div style={{ color: "#e0c097", fontSize: "1.1rem", fontWeight: 600 }}>{total}</div>
+                      <div style={{ color: "#888", fontSize: "0.7rem", textTransform: "uppercase" }}>{resource.name}</div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
+            </>
+          );
+        })()}
       </div>
     </div>
   );

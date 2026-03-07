@@ -4,9 +4,27 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
 from fastapi import APIRouter, Request
 
 router = APIRouter(prefix="/project", tags=["project"])
+
+CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / ".editor-config.yaml"
+
+
+def load_saved_config() -> dict:
+    """Load persisted project settings, or return empty dict."""
+    if CONFIG_PATH.exists():
+        with open(CONFIG_PATH) as f:
+            return yaml.safe_load(f) or {}
+    return {}
+
+
+def save_config(world_path: str, game_data_path: str) -> None:
+    """Persist project settings to disk."""
+    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(CONFIG_PATH, "w") as f:
+        yaml.safe_dump({"world_path": world_path, "game_data_path": game_data_path}, f)
 
 
 @router.get("")
@@ -20,7 +38,7 @@ async def get_project(request: Request) -> dict:
 
 @router.put("")
 async def update_project(data: dict, request: Request) -> dict:
-    """Update project paths at runtime."""
+    """Update project paths at runtime and persist to config file."""
     if "world_path" in data:
         wp = Path(data["world_path"])
         if not wp.exists():
@@ -31,6 +49,8 @@ async def update_project(data: dict, request: Request) -> dict:
         if not gdp.exists():
             gdp.mkdir(parents=True, exist_ok=True)
         request.app.state.game_data_path = str(gdp)
+    # Persist for next startup
+    save_config(request.app.state.world_path, request.app.state.game_data_path)
     return await get_project(request)
 
 

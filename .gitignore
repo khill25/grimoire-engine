@@ -34,6 +34,9 @@ saves/
 .DS_Store
 Thumbs.db
 
+# Editor local config
+editor/.editor-config.yaml
+
 # Testing
 .pytest_cache/
 .coverage

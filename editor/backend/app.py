@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRouter
 
 from editor.backend.routes import characters, places, factions, dialogue, story, generate, scenes, validate, items, game_types, project
+from editor.backend.routes.project import load_saved_config
 from editor.backend.yaml_io import read_yaml, write_yaml
 
 
@@ -28,13 +29,21 @@ def create_app(world_path: str = "", game_data_path: str = "") -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Store world path in app state
-    wp = Path(world_path) if world_path else Path(".")
+    # Load saved config as defaults; CLI args override
+    saved = load_saved_config()
+
+    if world_path:
+        wp = Path(world_path)
+    elif saved.get("world_path"):
+        wp = Path(saved["world_path"])
+    else:
+        wp = Path(".")
     app.state.world_path = str(wp)
 
-    # Game data path (items, equipment, etc.) — separate from world/story content
     if game_data_path:
         gdp = Path(game_data_path)
+    elif saved.get("game_data_path"):
+        gdp = Path(saved["game_data_path"])
     else:
         gdp = wp / "game_data"
     app.state.game_data_path = str(gdp)
@@ -92,14 +101,14 @@ def create_app(world_path: str = "", game_data_path: str = "") -> FastAPI:
 def main():
     import uvicorn
     parser = argparse.ArgumentParser(description="Grimoire World Builder")
-    parser.add_argument("world_path", help="Path to world directory")
+    parser.add_argument("world_path", nargs="?", default="", help="Path to world directory (optional if saved in config)")
     parser.add_argument("--game-data", help="Path to game data directory (items, etc.). Defaults to <world_path>/game_data")
     parser.add_argument("--port", type=int, default=17413)
     parser.add_argument("--host", default="0.0.0.0")
     args = parser.parse_args()
 
-    world_path = str(Path(args.world_path).resolve())
-    if not Path(world_path).exists():
+    world_path = str(Path(args.world_path).resolve()) if args.world_path else ""
+    if world_path and not Path(world_path).exists():
         print(f"World path does not exist: {world_path}")
         return
 
