@@ -7,7 +7,7 @@ from grimoire.engine.events import create_event
 from grimoire.loader.world_loader import load_world
 
 
-WORLD_PATH = str(Path(__file__).parent.parent / "world")
+WORLD_PATH = str(Path(__file__).parent / "fixtures" / "world")
 
 
 def _make_grimoire() -> Grimoire:

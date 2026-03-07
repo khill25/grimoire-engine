@@ -9,7 +9,7 @@ from grimoire.engine.game_state import GameState, PlayerAction
 from grimoire.loader.world_loader import load_world
 from grimoire.storage.save_load import load_game, restore_game_state, save_game
 
-WORLD_PATH = str(Path(__file__).parent.parent / "world")
+WORLD_PATH = str(Path(__file__).parent / "fixtures" / "world")
 
 
 def _setup():

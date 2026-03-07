@@ -17,7 +17,7 @@ from grimoire.dialogue.matcher import DialogueMatcher
 from grimoire.engine.session import GameSession
 from grimoire.loader.world_loader import load_world
 
-WORLD_PATH = str(Path(__file__).parent.parent / "world")
+WORLD_PATH = str(Path(__file__).parent / "fixtures" / "world")
 
 skip_no_embeddings = pytest.mark.skipif(
     not HAS_EMBEDDINGS, reason="sentence-transformers not available")

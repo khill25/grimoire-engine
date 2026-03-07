@@ -10,7 +10,7 @@ from grimoire.engine.session import GameSession
 from grimoire.llm.provider import LLMResponse, TokenUsage
 from grimoire.loader.world_loader import load_world
 
-WORLD_PATH = str(Path(__file__).parent.parent / "world")
+WORLD_PATH = str(Path(__file__).parent / "fixtures" / "world")
 
 
 class MockLLM:

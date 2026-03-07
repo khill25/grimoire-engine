@@ -44,3 +44,4 @@ node_modules/
 
 # Docs folder (local reference only)
 grimoire-docs-full/
+*.txt

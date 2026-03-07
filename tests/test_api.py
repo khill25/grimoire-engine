@@ -9,7 +9,7 @@ from grimoire.api.app import create_app
 from grimoire.engine.session import GameSession
 from grimoire.loader.world_loader import load_world
 
-WORLD_PATH = str(Path(__file__).parent.parent / "world")
+WORLD_PATH = str(Path(__file__).parent / "fixtures" / "world")
 
 
 @pytest.fixture

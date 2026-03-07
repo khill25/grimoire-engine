@@ -208,7 +208,7 @@ def test_story_full():
 
 # --- World loader tests (old layout) ---
 
-WORLD_PATH = str(Path(__file__).parent.parent / "world")
+WORLD_PATH = str(Path(__file__).parent / "fixtures" / "world")
 
 
 def test_load_world():
