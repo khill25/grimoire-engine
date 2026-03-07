@@ -125,7 +125,7 @@ The loader tries nested first, falls back to flat.
 Web-based content authoring tool — reads/writes YAML files directly.
 
 ### Backend (`editor/backend/`)
-- FastAPI app on port 14200, all routes under `/api/editor/`
+- FastAPI app on port 17413, all routes under `/api/editor/`
 - `yaml_io.py` — YAML read/write helpers
 - Routes: `characters.py`, `places.py`, `scenes.py`, `factions.py`, `dialogue.py`, `story.py`, `generate.py`, `validate.py`
 - Reuses Pydantic models from `grimoire/models/`

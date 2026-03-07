@@ -108,11 +108,11 @@ The test world in `world/` contains:
 uv run uvicorn grimoire.api.app:app --port 14123 --reload
 
 # Editor backend
-uv run python -m editor.backend.app world --port 14200
+uv run python -m editor.backend.app world
 
 # Editor frontend (dev)
 cd editor/frontend && npm run dev
-# Opens at http://localhost:5173
+# Opens at http://localhost:15231
 
 # Tests
 uv run pytest tests/ --ignore=tests/test_ollama_live.py --ignore=tests/test_embeddings_live.py

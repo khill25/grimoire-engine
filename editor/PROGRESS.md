@@ -6,18 +6,18 @@ Web-based game content authoring tool for Grimoire Engine. React + TypeScript fr
 ## Tech Stack
 - **Backend:** FastAPI (Python), reads/writes YAML files directly, connects to engine for LLM
 - **Frontend:** React + TypeScript + Vite, minimal dependencies
-- **Port:** 5173 (Vite dev), 14200 (backend API)
+- **Port:** 15231 (Vite dev), 17413 (backend API)
 
 ## How to Run
 ```bash
 # Terminal 1: Backend
 cd grimoire-engine
-uv run python -m editor.backend.app world --port 14200
+uv run python -m editor.backend.app world --port 17413
 
 # Terminal 2: Frontend (dev mode with hot reload)
 cd grimoire-engine/editor/frontend
 npm run dev
-# Open http://localhost:5173
+# Open http://localhost:15231
 ```
 
 ## Build Order & Status
