@@ -57,7 +57,10 @@ def create_app(world_path: str = "", game_data_path: str = "") -> FastAPI:
         app.state.story_path = str(wp)
 
     # Game data path (items, equipment, etc.) — separate from world/story content
-    gdp = Path(game_data_path) if game_data_path else wp / "game_data"
+    if game_data_path:
+        gdp = Path(game_data_path)
+    else:
+        gdp = Path(app.state.world_path) / "game_data"
     app.state.game_data_path = str(gdp)
 
     # World info endpoints
