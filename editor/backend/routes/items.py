@@ -1,4 +1,4 @@
-"""Item CRUD routes — game data (separate from world/story content)."""
+"""Item CRUD routes — game data stored as JSON (consumed directly by Godot)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request
 
-from editor.backend.yaml_io import delete_yaml, list_yaml_files, read_yaml, write_yaml
+from editor.backend.json_io import delete_json, list_json_files, read_json, write_json
 
 router = APIRouter(prefix="/items", tags=["items"])
 
@@ -19,8 +19,8 @@ def _items_dir(request: Request) -> Path:
 async def list_items(request: Request) -> list[dict]:
     items_dir = _items_dir(request)
     results = []
-    for path in list_yaml_files(items_dir):
-        data = read_yaml(path)
+    for path in list_json_files(items_dir):
+        data = read_json(path)
         results.append({
             "id": data.get("id", path.stem),
             "name": data.get("name", ""),
@@ -34,10 +34,10 @@ async def list_items(request: Request) -> list[dict]:
 
 @router.get("/{item_id}")
 async def get_item(item_id: str, request: Request) -> dict:
-    path = _items_dir(request) / f"{item_id}.yaml"
+    path = _items_dir(request) / f"{item_id}.json"
     if not path.exists():
         raise HTTPException(404, f"Item not found: {item_id}")
-    return read_yaml(path)
+    return read_json(path)
 
 
 @router.post("")
@@ -45,30 +45,30 @@ async def create_item(data: dict, request: Request) -> dict:
     item_id = data.get("id", "")
     if not item_id:
         raise HTTPException(400, "Item must have an id")
-    path = _items_dir(request) / f"{item_id}.yaml"
+    path = _items_dir(request) / f"{item_id}.json"
     if path.exists():
         raise HTTPException(409, f"Item already exists: {item_id}")
     path.parent.mkdir(parents=True, exist_ok=True)
-    write_yaml(path, data)
+    write_json(path, data)
     return {"status": "created", "id": item_id}
 
 
 @router.put("/{item_id}")
 async def update_item(item_id: str, data: dict, request: Request) -> dict:
-    path = _items_dir(request) / f"{item_id}.yaml"
+    path = _items_dir(request) / f"{item_id}.json"
     if not path.exists():
         raise HTTPException(404, f"Item not found: {item_id}")
     new_id = data.get("id", item_id)
     if new_id != item_id:
-        delete_yaml(path)
-        path = _items_dir(request) / f"{new_id}.yaml"
-    write_yaml(path, data)
+        delete_json(path)
+        path = _items_dir(request) / f"{new_id}.json"
+    write_json(path, data)
     return {"status": "updated", "id": new_id}
 
 
 @router.delete("/{item_id}")
 async def delete_item(item_id: str, request: Request) -> dict:
-    path = _items_dir(request) / f"{item_id}.yaml"
-    if not delete_yaml(path):
+    path = _items_dir(request) / f"{item_id}.json"
+    if not delete_json(path):
         raise HTTPException(404, f"Item not found: {item_id}")
     return {"status": "deleted", "id": item_id}
