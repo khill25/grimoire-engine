@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { storyMeta, story, characters, places, scenes, factions, dialogue, generate } from "../api/client";
+import { storyMeta, story, characters, places, scenes, factions, dialogue, items, generate } from "../api/client";
 import FormField, { inputStyle, textareaStyle, selectStyle, btnPrimary, btnDanger } from "../components/FormField";
 import ExtrasEditor from "../components/ExtrasEditor";
 import GenerateModal from "../components/GenerateModal";
@@ -29,6 +29,7 @@ interface Counts {
   characters: number;
   factions: number;
   dialogue: number;
+  items: number;
 }
 
 export default function StorySettings() {
@@ -36,7 +37,7 @@ export default function StorySettings() {
   const [meta, setMeta] = useState<Record<string, any>>({});
   const [grimoire, setGrimoire] = useState<Record<string, any>>({});
   const [acts, setActs] = useState<Act[]>([]);
-  const [counts, setCounts] = useState<Counts>({ places: 0, scenes: 0, characters: 0, factions: 0, dialogue: 0 });
+  const [counts, setCounts] = useState<Counts>({ places: 0, scenes: 0, characters: 0, factions: 0, dialogue: 0, items: 0 });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [expandedAct, setExpandedAct] = useState<string | null>(null);
@@ -46,7 +47,7 @@ export default function StorySettings() {
 
   const load = useCallback(async () => {
     try {
-      const [m, b, p, s, c, f, d] = await Promise.all([
+      const [m, b, p, s, c, f, d, it] = await Promise.all([
         storyMeta.get().catch(() => ({})),
         story.get().catch(() => ({ title: "", description: "", acts: [] })),
         places.list().catch(() => []),
@@ -54,11 +55,12 @@ export default function StorySettings() {
         characters.list().catch(() => []),
         factions.list().catch(() => []),
         dialogue.list().catch(() => []),
+        items.list().catch(() => []),
       ]);
       setMeta(m);
       setGrimoire(b);
       setActs(b.acts || []);
-      setCounts({ places: p.length, scenes: s.length, characters: c.length, factions: f.length, dialogue: d.length });
+      setCounts({ places: p.length, scenes: s.length, characters: c.length, factions: f.length, dialogue: d.length, items: it.length });
     } catch (e: any) {
       setError(e.message);
     }
@@ -177,13 +179,14 @@ export default function StorySettings() {
         {error && <div style={{ color: "#f88", marginBottom: "1rem" }}>{error}</div>}
 
         {/* Overview cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "0.5rem", marginBottom: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "0.5rem", marginBottom: "1.5rem" }}>
           {([
             ["Places", counts.places, "/places"],
             ["Scenes", counts.scenes, "/scenes"],
             ["Characters", counts.characters, "/characters"],
             ["Factions", counts.factions, "/factions"],
             ["Dialogue", counts.dialogue, "/dialogue"],
+            ["Items", counts.items, "/items"],
           ] as [string, number, string][]).map(([label, count, path]) => (
             <div
               key={label}

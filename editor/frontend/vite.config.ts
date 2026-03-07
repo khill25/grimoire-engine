@@ -7,7 +7,7 @@ export default defineConfig({
     port: 15231,
     proxy: {
       "/api/editor": {
-        target: "http://localhost:17413",
+        target: "http://127.0.0.1:17413",
         changeOrigin: true,
       },
     },

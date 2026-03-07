@@ -16,6 +16,9 @@ import FactionEditor from "./pages/FactionEditor";
 import StoryBeats from "./pages/StoryBeats";
 import Validate from "./pages/Validate";
 import WorldGraph from "./pages/WorldGraph";
+import Items from "./pages/Items";
+import ItemEditor from "./pages/ItemEditor";
+import GameTypes from "./pages/GameTypes";
 
 export default function App() {
   return (
@@ -36,6 +39,9 @@ export default function App() {
           <Route path="/scenes/:id" element={<SceneEditor />} />
           <Route path="/factions" element={<Factions />} />
           <Route path="/factions/:id" element={<FactionEditor />} />
+          <Route path="/items" element={<Items />} />
+          <Route path="/items/:id" element={<ItemEditor />} />
+          <Route path="/game-types" element={<GameTypes />} />
           <Route path="/story" element={<StoryBeats />} />
           <Route path="/validate" element={<Validate />} />
         </Route>

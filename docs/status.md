@@ -63,13 +63,21 @@ Current state of Grimoire Engine, World Builder Editor, and Shattered Kingdom.
 - [x] Condition builder component (structured flag/event conditions)
 - [x] State changes editor component (key/value with type selectors)
 - [x] Trigger editor component (type dropdown + contextual conditions)
+- [x] Game Types system (schema-driven validation for stats, damage types, slots, rarities, etc.)
+- [x] Game Types editor page (add/remove/reorder type entries per category)
+- [x] TypeSelect component (schema-validated dropdowns, invalid value warnings)
+- [x] GameTypesContext (React context, loads types once, available to all pages)
+- [x] Item CRUD (list, get, create, update, delete → YAML in game_data/items/)
+- [x] Item editor with dynamic type-specific fields (weapon/armor/consumable/accessory/key_item/material)
+- [x] Separate game data path (`--game-data` CLI flag, defaults to `<world_path>/game_data/`)
+- [x] Nav reorganized into sections: World & Story, Game Data, Tools
 
 ### Known Issues
 - [ ] **Story page beat editor still uses raw text inputs** for trigger type/condition — needs TriggerEditor component (the dedicated Story Beats page has it, but Story page sidebar doesn't)
 - [ ] Dialogue editor node conditions don't support compound `and` (engine dialogue conditions don't either, so this is consistent but limiting)
 - [ ] No undo/redo in any editor
 - [ ] No confirmation before navigating away with unsaved changes
-- [ ] `editor/PROGRESS.md` has wrong port numbers (says 15231/17413, actual is 5173/14200)
+- [ ] Port numbers fixed (15231 frontend, 17413 backend)
 
 ### Future Enhancements
 - [ ] Visual node graph editor for dialogue (canvas drag-and-drop, not just visualization)
@@ -107,8 +115,11 @@ The test world in `world/` contains:
 # Engine API
 uv run uvicorn grimoire.api.app:app --port 14123 --reload
 
-# Editor backend
+# Editor backend (game data defaults to world/game_data/)
 uv run python -m editor.backend.app world
+
+# Editor backend with separate game data path
+uv run python -m editor.backend.app world --game-data ~/shattered-kingdom/data
 
 # Editor frontend (dev)
 cd editor/frontend && npm run dev

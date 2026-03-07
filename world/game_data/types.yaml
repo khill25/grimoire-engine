@@ -1,0 +1,124 @@
+stats:
+  - id: strength
+    name: Strength
+    description: Physical power, melee damage scaling
+  - id: dexterity
+    name: Dexterity
+    description: Agility, speed, finesse weapon scaling
+  - id: vitality
+    name: Vitality
+    description: Health pool and physical resilience
+  - id: endurance
+    name: Endurance
+    description: Stamina pool and equip load
+  - id: intelligence
+    name: Intelligence
+    description: Sorcery power and mana pool
+  - id: faith
+    name: Faith
+    description: Incantation power and holy scaling
+  - id: arcane
+    name: Arcane
+    description: Discovery, status buildup, certain weapon scaling
+
+damage_types:
+  - id: physical
+    name: Physical
+  - id: fire
+    name: Fire
+  - id: ice
+    name: Ice
+  - id: lightning
+    name: Lightning
+  - id: holy
+    name: Holy
+  - id: void
+    name: Void
+
+equipment_slots:
+  - id: main_hand
+    name: Main Hand
+  - id: off_hand
+    name: Off Hand
+  - id: head
+    name: Head
+  - id: chest
+    name: Chest
+  - id: legs
+    name: Legs
+  - id: feet
+    name: Feet
+  - id: accessory
+    name: Accessory
+
+item_types:
+  - id: consumable
+    name: Consumable
+  - id: weapon
+    name: Weapon
+  - id: armor
+    name: Armor
+  - id: accessory
+    name: Accessory
+  - id: key_item
+    name: Key Item
+  - id: material
+    name: Material
+
+rarities:
+  - id: common
+    name: Common
+    color: "#aaa"
+  - id: uncommon
+    name: Uncommon
+    color: "#4a9"
+  - id: rare
+    name: Rare
+    color: "#49a"
+  - id: epic
+    name: Epic
+    color: "#a4a"
+  - id: legendary
+    name: Legendary
+    color: "#da4"
+  - id: unique
+    name: Unique
+    color: "#e80"
+
+scaling_grades:
+  - id: S
+    name: S
+    multiplier: 1.0
+  - id: A
+    name: A
+    multiplier: 0.8
+  - id: B
+    name: B
+    multiplier: 0.6
+  - id: C
+    name: C
+    multiplier: 0.4
+  - id: D
+    name: D
+    multiplier: 0.25
+  - id: E
+    name: E
+    multiplier: 0.1
+
+effect_types:
+  - id: heal_hp
+    name: Heal HP
+  - id: restore_stamina
+    name: Restore Stamina
+  - id: restore_mana
+    name: Restore Mana
+  - id: buff_strength
+    name: Buff Strength
+  - id: buff_dexterity
+    name: Buff Dexterity
+  - id: buff_defense
+    name: Buff Defense
+  - id: cure_poison
+    name: Cure Poison
+  - id: cure_all
+    name: Cure All

@@ -72,7 +72,8 @@ npm run dev
 ### Backend
 - Reuses Pydantic models from `grimoire/models/`
 - YAML read/write via `editor/backend/yaml_io.py`
-- Separate FastAPI app on port 14200 (doesn't interfere with game API on 14123)
+- Separate FastAPI app on port 17413 (doesn't interfere with game API on 14123)
+- Two data roots: world path (story content) and game data path (items, types)
 - All routes under `/api/editor/`
 - Vite proxies `/api/editor` to backend in dev mode
 
@@ -99,6 +100,8 @@ editor/
       factions.py          # Faction CRUD
       dialogue.py          # Dialogue tree CRUD
       story.py             # Grimoire + beats
+      items.py             # Item CRUD (game data)
+      game_types.py        # Game types/enums CRUD
   frontend/
     package.json
     vite.config.ts         # Proxy config for backend
@@ -119,6 +122,7 @@ editor/
         GenerateModal.tsx     # LLM generation prompt modal
         FieldAssist.tsx       # Inline AI button for text fields
         ExtrasEditor.tsx      # Generic key/value extras editor
+        TypeSelect.tsx        # Schema-validated dropdown (from GameTypes context)
         ValidationPanel.tsx   # Validation results display
         GraphSidePanel.tsx    # Side panel for graph views
       pages/
@@ -137,8 +141,29 @@ editor/
         DialogueEditor.tsx    # Node-by-node dialogue editor
         DialogueGraph.tsx     # Dialogue node graph visualization
         StoryBeats.tsx        # Dedicated beat editor
+        GameTypes.tsx         # Game type/enum editor
+        Items.tsx             # Item list
+        ItemEditor.tsx        # Dynamic item editor (type-specific fields)
         Validate.tsx          # Cross-reference validation
 ```
+
+### Phase 7: Game Data System
+- [x] Separate game data path (`--game-data` CLI flag)
+- [x] Game Types system — `types.yaml` defines valid stats, damage types, equipment slots, rarities, scaling grades, effect types
+- [x] Game Types editor page (add/remove/reorder entries per category)
+- [x] GameTypesContext (React context, loads types once for all pages)
+- [x] TypeSelect component (schema-validated dropdowns with invalid value warnings)
+- [x] Item CRUD backend (list, get, create, update, delete → YAML)
+- [x] Item list page
+- [x] Item editor with dynamic type-specific fields:
+  - All: id, name, type, rarity, value, weight, stackable, icon, description, extras
+  - Weapon: damage, damage_type, scaling (stat→grade), slot, requirements
+  - Armor: defense, resistances (damage_type→value), slot, requirements
+  - Accessory: slot, requirements
+  - Consumable: effect, effect_value, duration, cooldown
+  - Key Item / Material: base fields only
+- [x] Nav reorganized into sections: World & Story, Game Data, Tools
+- [ ] More game data types: classes, skills, enemies (planned)
 
 ## LLM Generation Details
 - Backend routes in `editor/backend/routes/generate.py`

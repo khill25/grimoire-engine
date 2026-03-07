@@ -71,6 +71,21 @@ export const story = {
   deleteBeat: (id: string) => request<any>(`/story/beats/${id}`, { method: "DELETE" }),
 };
 
+// Items (game data)
+export const items = {
+  list: () => request<any[]>("/items"),
+  get: (id: string) => request<any>(`/items/${id}`),
+  create: (data: any) => request<any>("/items", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: any) => request<any>(`/items/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (id: string) => request<any>(`/items/${id}`, { method: "DELETE" }),
+};
+
+// Game types (schema/enums)
+export const gameTypes = {
+  get: () => request<any>("/game-types"),
+  update: (data: any) => request<any>("/game-types", { method: "PUT", body: JSON.stringify(data) }),
+};
+
 // Story metadata
 export const storyMeta = {
   get: () => request<any>("/story-meta"),

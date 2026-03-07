@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRouter
 
-from editor.backend.routes import characters, places, factions, dialogue, story, generate, scenes, validate
+from editor.backend.routes import characters, places, factions, dialogue, story, generate, scenes, validate, items, game_types
 from editor.backend.yaml_io import read_yaml, write_yaml
 
 
@@ -27,7 +27,7 @@ def _detect_layout(world_path: Path) -> str:
     return "world"
 
 
-def create_app(world_path: str = "") -> FastAPI:
+def create_app(world_path: str = "", game_data_path: str = "") -> FastAPI:
     app = FastAPI(
         title="Grimoire World Builder",
         description="Content authoring tool for Grimoire Engine",
@@ -55,6 +55,10 @@ def create_app(world_path: str = "") -> FastAPI:
         # Old layout: world/ is the root
         app.state.world_path = str(wp)
         app.state.story_path = str(wp)
+
+    # Game data path (items, equipment, etc.) — separate from world/story content
+    gdp = Path(game_data_path) if game_data_path else wp / "game_data"
+    app.state.game_data_path = str(gdp)
 
     # World info endpoints
     world_router = APIRouter(prefix="/world", tags=["world"])
@@ -108,6 +112,8 @@ def create_app(world_path: str = "") -> FastAPI:
     api.include_router(generate.router)
     api.include_router(scenes.router)
     api.include_router(validate.router)
+    api.include_router(items.router)
+    api.include_router(game_types.router)
 
     app.include_router(api)
 
@@ -118,6 +124,7 @@ def main():
     import uvicorn
     parser = argparse.ArgumentParser(description="Grimoire World Builder")
     parser.add_argument("world_path", help="Path to world or story directory")
+    parser.add_argument("--game-data", help="Path to game data directory (items, etc.). Defaults to <world_path>/game_data")
     parser.add_argument("--port", type=int, default=17413)
     parser.add_argument("--host", default="0.0.0.0")
     args = parser.parse_args()
@@ -127,7 +134,8 @@ def main():
         print(f"World path does not exist: {world_path}")
         return
 
-    app = create_app(world_path)
+    game_data_path = str(Path(args.game_data).resolve()) if args.game_data else ""
+    app = create_app(world_path, game_data_path)
     uvicorn.run(app, host=args.host, port=args.port)
 
 

@@ -127,7 +127,9 @@ Web-based content authoring tool — reads/writes YAML files directly.
 ### Backend (`editor/backend/`)
 - FastAPI app on port 17413, all routes under `/api/editor/`
 - `yaml_io.py` — YAML read/write helpers
-- Routes: `characters.py`, `places.py`, `scenes.py`, `factions.py`, `dialogue.py`, `story.py`, `generate.py`, `validate.py`
+- Routes: `characters.py`, `places.py`, `scenes.py`, `factions.py`, `dialogue.py`, `story.py`, `generate.py`, `validate.py`, `items.py`, `game_types.py`
+- Supports two data roots: **world path** (story content) and **game data path** (items, types, etc.)
+- `--game-data` CLI flag to point at a separate game data directory (defaults to `<world_path>/game_data/`)
 - Reuses Pydantic models from `grimoire/models/`
 - Generation routes connect to engine's LLM providers
 
@@ -152,6 +154,9 @@ React + TypeScript + Vite. No external UI library — plain React + inline style
 | `DialogueEditor.tsx` | `/dialogue/:id` | Node-by-node dialogue editor with condition builders and state change editors |
 | `DialogueGraph.tsx` | `/dialogue/:id/graph` | Visual dialogue node graph |
 | `StoryBeats.tsx` | `/story` | Dedicated beat editor (grouped by act, full trigger editor) |
+| `GameTypes.tsx` | `/game-types` | Game type/enum editor (stats, damage types, slots, rarities, etc.) |
+| `Items.tsx` | `/items` | Item list |
+| `ItemEditor.tsx` | `/items/:id` | Dynamic item editor (type-specific fields for weapon/armor/consumable/etc.) |
 | `Validate.tsx` | `/validate` | Cross-reference validation (broken refs, duplicate IDs) |
 
 #### Components
@@ -167,6 +172,7 @@ React + TypeScript + Vite. No external UI library — plain React + inline style
 | `GenerateModal.tsx` | LLM generation prompt modal with provider selector |
 | `FieldAssist.tsx` | Inline AI button for individual text fields |
 | `ExtrasEditor.tsx` | Generic key/value extras dict editor |
+| `TypeSelect.tsx` | Schema-validated dropdown (reads from GameTypes context) |
 | `ValidationPanel.tsx` | Validation results display |
 | `GraphSidePanel.tsx` | Side panel for graph views |
 
