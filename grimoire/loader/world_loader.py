@@ -122,8 +122,10 @@ def load_world(path: str) -> WorldData:
 
 def _load_world_layout(root: Path, world: WorldData) -> None:
     """Load from old flat world/ directory structure."""
-    # Global settings
-    world_file = root / "world.yaml"
+    # Global settings — grimoire.yaml (preferred) or legacy world.yaml
+    world_file = root / "grimoire.yaml"
+    if not world_file.exists():
+        world_file = root / "world.yaml"
     if world_file.exists():
         world_config = _load_yaml(world_file)
         world.name = world_config.get("name", "")
@@ -137,10 +139,14 @@ def _load_world_layout(root: Path, world: WorldData) -> None:
     world.factions = _load_directory(root / "factions", Faction)
     world.dialogue_trees = _load_directory(root / "dialogue", DialogueTree)
 
-    # Grimoire (old layout: story/grimoire.yaml)
-    story_file = root / "story" / "grimoire.yaml"
-    if story_file.exists():
-        world.grimoire = _load_yaml(story_file)
+    # Grimoire — check root first, then old story/ subfolder
+    grimoire_file = root / "grimoire.yaml"
+    if grimoire_file.exists():
+        world.grimoire = _load_yaml(grimoire_file)
+    else:
+        story_file = root / "story" / "grimoire.yaml"
+        if story_file.exists():
+            world.grimoire = _load_yaml(story_file)
 
 
 def _load_story_layout(root: Path, world: WorldData) -> None:

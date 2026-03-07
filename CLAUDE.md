@@ -117,4 +117,4 @@ WS     /game/stream          — Real-time updates (scaffolded for Godot)
 - test_models.py (17), test_dialogue.py (15), test_director.py (10), test_engine.py (12)
 - test_llm.py (5), test_api.py (14), test_session.py (17), test_save_load.py (3), test_storage.py (15)
 - test_ollama_live.py (6), test_embeddings_live.py (8) — require external services
-- **112 unit tests + 14 live tests**
+- **127 unit tests + 14 live tests**

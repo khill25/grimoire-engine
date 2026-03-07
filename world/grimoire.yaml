@@ -1,5 +1,15 @@
-title: Lowport Station — Act 1
+name: Shattered Kingdom
+tone: 'epic sci-fi fantasy, dark, lived-in, high tech, star wars, elden ring'
 description: >
+  The Shattered Kingdom is the remnants of a once prosperous and sprawling
+  mega space station/spaceship containing the seat of the old ruling class.
+  It is now a massive debris field orbiting a planet/blackhole.
+time:
+  ticks_per_hour: 1
+  hours_per_day: 24
+
+title: Lowport Station — Act 1
+story_description: >
   The player arrives on Lowport Station and gets drawn into the
   conflict between the Dockworkers Union and station management.
   Under the surface, a resistance cell is forming.
@@ -40,7 +50,7 @@ acts:
         trigger:
           type: flag
           condition: "dock_work_offered == true"
-        deadline: 48  # ticks — if player doesn't pursue, Storyteller generates a hook
+        deadline: 48
         status: pending
 
       - id: beat_vera_encounter

@@ -14,9 +14,7 @@ async def get_project(request: Request) -> dict:
     """Return current project paths."""
     return {
         "world_path": request.app.state.world_path,
-        "story_path": request.app.state.story_path,
         "game_data_path": request.app.state.game_data_path,
-        "layout": request.app.state.layout,
     }
 
 
@@ -28,7 +26,6 @@ async def update_project(data: dict, request: Request) -> dict:
         if not wp.exists():
             wp.mkdir(parents=True, exist_ok=True)
         request.app.state.world_path = str(wp)
-        request.app.state.story_path = str(wp)
     if "game_data_path" in data:
         gdp = Path(data["game_data_path"])
         if not gdp.exists():

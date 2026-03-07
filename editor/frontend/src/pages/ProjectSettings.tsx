@@ -6,9 +6,7 @@ import FolderBrowser from "../components/FolderBrowser";
 
 interface ProjectPaths {
   world_path: string;
-  story_path: string;
   game_data_path: string;
-  layout: string;
 }
 
 export default function ProjectSettings() {
@@ -106,9 +104,7 @@ export default function ProjectSettings() {
       {/* Current state info */}
       <div style={{ ...sectionStyle, marginTop: "1rem" }}>
         <h3 style={{ color: "#e0c097", margin: "0 0 0.5rem 0", fontSize: "0.95rem" }}>Current State</h3>
-        <InfoRow label="Layout" value={paths.layout} />
         <InfoRow label="World Path" value={paths.world_path} />
-        <InfoRow label="Story Path" value={paths.story_path} />
         <InfoRow label="Game Data Path" value={paths.game_data_path} />
       </div>
 
