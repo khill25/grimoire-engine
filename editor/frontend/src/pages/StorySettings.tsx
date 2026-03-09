@@ -44,6 +44,21 @@ export default function StorySettings() {
   const [editingBeat, setEditingBeat] = useState<Beat | null>(null);
   const [editingAct, setEditingAct] = useState<Act | null>(null);
   const [showGenerate, setShowGenerate] = useState(false);
+  const [dirtyMeta, setDirtyMeta] = useState(false);
+  const [dirtyGrimoire, setDirtyGrimoire] = useState(false);
+  const [savedMeta, setSavedMeta] = useState(false);
+  const [savedGrimoire, setSavedGrimoire] = useState(false);
+
+  // Warn before leaving with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirtyMeta || dirtyGrimoire) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirtyMeta, dirtyGrimoire]);
 
   const load = useCallback(async () => {
     try {
@@ -68,13 +83,28 @@ export default function StorySettings() {
 
   useEffect(() => { load(); }, [load]);
 
+  const updateMeta = (patch: Record<string, any>) => {
+    setMeta({ ...meta, ...patch });
+    setDirtyMeta(true);
+    setSavedMeta(false);
+  };
+
+  const updateGrimoire = (patch: Record<string, any>) => {
+    setGrimoire({ ...grimoire, ...patch });
+    setDirtyGrimoire(true);
+    setSavedGrimoire(false);
+  };
+
   const saveMeta = async () => {
     setSaving(true);
     setError("");
+    setSavedMeta(false);
     try {
       await storyMeta.update(meta);
+      setDirtyMeta(false);
+      setSavedMeta(true);
     } catch (e: any) {
-      setError(e.message);
+      setError(`Failed to save metadata: ${e.message}`);
     } finally {
       setSaving(false);
     }
@@ -83,10 +113,13 @@ export default function StorySettings() {
   const saveGrimoire = async () => {
     setSaving(true);
     setError("");
+    setSavedGrimoire(false);
     try {
       await story.update({ ...grimoire, acts });
+      setDirtyGrimoire(false);
+      setSavedGrimoire(true);
     } catch (e: any) {
-      setError(e.message);
+      setError(`Failed to save grimoire: ${e.message}`);
     } finally {
       setSaving(false);
     }
@@ -110,7 +143,7 @@ export default function StorySettings() {
       setActs((prev) => prev.map((a) => a.id === act.id ? { ...a, name: act.name, description: act.description } : a));
       setEditingAct(null);
     } catch (e: any) {
-      setError(e.message);
+      setError(`Failed to save act: ${e.message}`);
     }
   };
 
@@ -121,7 +154,7 @@ export default function StorySettings() {
       setActs((prev) => prev.filter((a) => a.id !== actId));
       if (expandedAct === actId) setExpandedAct(null);
     } catch (e: any) {
-      setError(e.message);
+      setError(`Failed to delete act: ${e.message}`);
     }
   };
 
@@ -176,7 +209,16 @@ export default function StorySettings() {
       {/* Left column: story meta + grimoire + acts */}
       <div style={{ flex: 1, overflow: "auto" }}>
         <h1 style={{ color: "#e0c097", margin: "0 0 1rem 0" }}>Story</h1>
-        {error && <div style={{ color: "#f88", marginBottom: "1rem" }}>{error}</div>}
+        {error && (
+          <div style={{
+            color: "#f88", marginBottom: "1rem", background: "#2a1a1a",
+            border: "1px solid #a33", borderRadius: 6, padding: "0.6rem 0.8rem",
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+          }}>
+            <span>{error}</span>
+            <button onClick={() => setError("")} style={{ background: "none", border: "none", color: "#f88", cursor: "pointer", fontSize: "1rem" }}>x</button>
+          </div>
+        )}
 
         {/* Overview cards */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "0.5rem", marginBottom: "1.5rem" }}>
@@ -206,23 +248,23 @@ export default function StorySettings() {
         <Section title="Story Metadata">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
             <FormField label="Name">
-              <input style={inputStyle} value={meta.name || ""} onChange={(e) => setMeta({ ...meta, name: e.target.value })} />
+              <input style={inputStyle} value={meta.name || ""} onChange={(e) => updateMeta({ name: e.target.value })} />
             </FormField>
             <FormField label="Tone">
-              <input style={inputStyle} value={meta.tone || ""} onChange={(e) => setMeta({ ...meta, tone: e.target.value })} />
+              <input style={inputStyle} value={meta.tone || ""} onChange={(e) => updateMeta({ tone: e.target.value })} />
             </FormField>
           </div>
           <FormField label="Description">
-            <textarea style={{ ...textareaStyle, minHeight: 60 }} value={meta.description || ""} onChange={(e) => setMeta({ ...meta, description: e.target.value })} />
+            <textarea style={{ ...textareaStyle, minHeight: 60 }} value={meta.description || ""} onChange={(e) => updateMeta({ description: e.target.value })} />
           </FormField>
           <FormField label="Worlds" hint="Comma-separated world IDs">
-            <input style={inputStyle} value={(meta.worlds || []).join(", ")} onChange={(e) => setMeta({ ...meta, worlds: e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean) })} />
+            <input style={inputStyle} value={(meta.worlds || []).join(", ")} onChange={(e) => updateMeta({ worlds: e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean) })} />
           </FormField>
           {meta.extras !== undefined && (
-            <ExtrasEditor extras={meta.extras || {}} onChange={(extras) => setMeta({ ...meta, extras })} />
+            <ExtrasEditor extras={meta.extras || {}} onChange={(extras) => updateMeta({ extras })} />
           )}
-          <button onClick={saveMeta} disabled={saving} style={btnPrimary}>
-            {saving ? "Saving..." : "Save Metadata"}
+          <button onClick={saveMeta} disabled={saving} style={dirtyMeta ? dirtyBtnStyle : btnPrimary}>
+            {saving ? "Saving..." : savedMeta ? "Saved" : dirtyMeta ? "Save Metadata *" : "Save Metadata"}
           </button>
         </Section>
 
@@ -230,7 +272,7 @@ export default function StorySettings() {
         <Section title="Grimoire">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
             <FormField label="Title">
-              <input style={inputStyle} value={grimoire.title || ""} onChange={(e) => setGrimoire({ ...grimoire, title: e.target.value })} />
+              <input style={inputStyle} value={grimoire.title || ""} onChange={(e) => updateGrimoire({ title: e.target.value })} />
             </FormField>
             <FormField label="Summary">
               <div style={{ color: "#888", fontSize: "0.8rem", marginTop: 8 }}>
@@ -239,11 +281,11 @@ export default function StorySettings() {
             </FormField>
           </div>
           <FormField label="Description">
-            <textarea style={{ ...textareaStyle, minHeight: 60 }} value={grimoire.description || ""} onChange={(e) => setGrimoire({ ...grimoire, description: e.target.value })} />
+            <textarea style={{ ...textareaStyle, minHeight: 60 }} value={grimoire.description || ""} onChange={(e) => updateGrimoire({ description: e.target.value })} />
           </FormField>
           <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button onClick={saveGrimoire} disabled={saving} style={btnPrimary}>
-              {saving ? "Saving..." : "Save Grimoire"}
+            <button onClick={saveGrimoire} disabled={saving} style={dirtyGrimoire ? dirtyBtnStyle : btnPrimary}>
+              {saving ? "Saving..." : savedGrimoire ? "Saved" : dirtyGrimoire ? "Save Grimoire *" : "Save Grimoire"}
             </button>
           </div>
         </Section>
@@ -481,6 +523,17 @@ const addBeatBtn: React.CSSProperties = {
   fontSize: "0.8rem",
   width: "100%",
   marginTop: 8,
+};
+
+const dirtyBtnStyle: React.CSSProperties = {
+  background: "#2a2a1a",
+  color: "#e0c097",
+  border: "2px solid #e0c097",
+  padding: "0.5rem 1.5rem",
+  borderRadius: 4,
+  cursor: "pointer",
+  fontSize: "0.9rem",
+  fontWeight: 600,
 };
 
 const generateBtn: React.CSSProperties = {
