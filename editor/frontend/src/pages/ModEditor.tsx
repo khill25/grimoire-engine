@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { mods } from "../api/client";
-import { useGameTypes } from "../context/GameTypesContext";
 import FormField, { inputStyle, textareaStyle, selectStyle, btnPrimary, btnDanger } from "../components/FormField";
-import TypeSelect from "../components/TypeSelect";
+import RaritySelect, { rarityColor } from "../components/RaritySelect";
 
 const MOD_KINDS = ["armor", "melee", "ranged", "universal"] as const;
 
@@ -60,7 +59,6 @@ const emptyMod: ModData = {
 export default function ModEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { lookup } = useGameTypes();
   const isNew = id === "new";
   const [mod, setMod] = useState<ModData>(emptyMod);
   const [saving, setSaving] = useState(false);
@@ -93,8 +91,7 @@ export default function ModEditor() {
     setSaving(false);
   };
 
-  const rarityEntry = lookup("rarities", mod.rarity);
-  const rarityColor = rarityEntry?.color || "#aaa";
+  const rColor = rarityColor(mod.rarity);
 
   // Available slots based on kind
   const availableSlots = SLOT_TAXONOMY[mod.kind] || [];
@@ -131,7 +128,7 @@ export default function ModEditor() {
     <div style={{ maxWidth: 800 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <h1 style={{ color: "#e0c097", margin: 0 }}>
-          {isNew ? "New Mod" : <>Edit: <span style={{ color: rarityColor }}>{mod.name}</span></>}
+          {isNew ? "New Mod" : <>Edit: <span style={{ color: rColor }}>{mod.name}</span></>}
         </h1>
         <button onClick={() => navigate("/mods")} style={btnDanger}>Cancel</button>
       </div>
@@ -147,7 +144,7 @@ export default function ModEditor() {
           <input style={inputStyle} value={mod.name} onChange={(e) => update({ name: e.target.value })} />
         </FormField>
         <FormField label="Rarity">
-          <TypeSelect category="rarities" value={mod.rarity} onChange={(v) => update({ rarity: v })} allowEmpty={false} />
+          <RaritySelect value={mod.rarity} onChange={(v) => update({ rarity: v })} />
         </FormField>
         <FormField label="Icon" hint="Icon asset reference">
           <input style={inputStyle} value={mod.icon} onChange={(e) => update({ icon: e.target.value })} />

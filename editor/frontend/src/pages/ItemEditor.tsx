@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { items } from "../api/client";
-import { useGameTypes } from "../context/GameTypesContext";
 import FormField, { inputStyle, textareaStyle, btnPrimary, btnDanger } from "../components/FormField";
-import TypeSelect from "../components/TypeSelect";
+import RaritySelect, { rarityColor } from "../components/RaritySelect";
 import ExtrasEditor from "../components/ExtrasEditor";
 
 interface ItemData {
@@ -30,7 +29,6 @@ const emptyItem: ItemData = {
 export default function ItemEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { lookup } = useGameTypes();
   const isNew = id === "new";
   const [item, setItem] = useState<ItemData>(emptyItem);
   const [saving, setSaving] = useState(false);
@@ -61,14 +59,13 @@ export default function ItemEditor() {
     setSaving(false);
   };
 
-  const rarityEntry = lookup("rarities", item.rarity);
-  const rarityColor = rarityEntry?.color || "#aaa";
+  const rColor = rarityColor(item.rarity);
 
   return (
     <div style={{ maxWidth: 800 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <h1 style={{ color: "#e0c097", margin: 0 }}>
-          {isNew ? "New Item" : <>Edit: <span style={{ color: rarityColor }}>{item.name}</span></>}
+          {isNew ? "New Item" : <>Edit: <span style={{ color: rColor }}>{item.name}</span></>}
         </h1>
         <button onClick={() => navigate("/items")} style={btnDanger}>Cancel</button>
       </div>
@@ -83,7 +80,7 @@ export default function ItemEditor() {
           <input style={inputStyle} value={item.name} onChange={(e) => update({ name: e.target.value })} />
         </FormField>
         <FormField label="Rarity">
-          <TypeSelect category="rarities" value={item.rarity} onChange={(v) => update({ rarity: v })} allowEmpty={false} />
+          <RaritySelect value={item.rarity} onChange={(v) => update({ rarity: v })} />
         </FormField>
         <FormField label="Icon" hint="Icon asset reference">
           <input style={inputStyle} value={item.icon} onChange={(e) => update({ icon: e.target.value })} />

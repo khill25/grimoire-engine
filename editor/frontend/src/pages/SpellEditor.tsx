@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { spells } from "../api/client";
-import { useGameTypes } from "../context/GameTypesContext";
 import FormField, { inputStyle, textareaStyle, btnPrimary, btnDanger } from "../components/FormField";
+import RaritySelect, { rarityColor } from "../components/RaritySelect";
 import TypeSelect from "../components/TypeSelect";
 
 interface SpellData {
@@ -36,7 +36,6 @@ const emptySpell: SpellData = {
 export default function SpellEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { lookup } = useGameTypes();
   const isNew = id === "new";
   const [spell, setSpell] = useState<SpellData>(emptySpell);
   const [saving, setSaving] = useState(false);
@@ -67,14 +66,13 @@ export default function SpellEditor() {
     setSaving(false);
   };
 
-  const rarityEntry = lookup("rarities", spell.rarity);
-  const rarityColor = rarityEntry?.color || "#aaa";
+  const rColor = rarityColor(spell.rarity);
 
   return (
     <div style={{ maxWidth: 800 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <h1 style={{ color: "#e0c097", margin: 0 }}>
-          {isNew ? "New Spell" : <>Edit: <span style={{ color: rarityColor }}>{spell.name}</span></>}
+          {isNew ? "New Spell" : <>Edit: <span style={{ color: rColor }}>{spell.name}</span></>}
         </h1>
         <button onClick={() => navigate("/spells")} style={btnDanger}>Cancel</button>
       </div>
@@ -90,7 +88,7 @@ export default function SpellEditor() {
           <input style={inputStyle} value={spell.name} onChange={(e) => update({ name: e.target.value })} />
         </FormField>
         <FormField label="Rarity">
-          <TypeSelect category="rarities" value={spell.rarity} onChange={(v) => update({ rarity: v })} allowEmpty={false} />
+          <RaritySelect value={spell.rarity} onChange={(v) => update({ rarity: v })} />
         </FormField>
         <FormField label="Icon" hint="Icon asset reference">
           <input style={inputStyle} value={spell.icon} onChange={(e) => update({ icon: e.target.value })} />

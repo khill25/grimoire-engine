@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { weapons } from "../api/client";
-import { useGameTypes } from "../context/GameTypesContext";
 import FormField, { inputStyle, textareaStyle, selectStyle, btnPrimary, btnDanger } from "../components/FormField";
+import RaritySelect, { rarityColor } from "../components/RaritySelect";
 import TypeSelect from "../components/TypeSelect";
 
 interface AttackData {
@@ -68,7 +68,6 @@ const emptyWeapon: WeaponData = {
 export default function WeaponEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { lookup } = useGameTypes();
   const isNew = id === "new";
   const [weapon, setWeapon] = useState<WeaponData>(emptyWeapon);
   const [saving, setSaving] = useState(false);
@@ -104,8 +103,7 @@ export default function WeaponEditor() {
   const isSword = weapon.weapon_kind === "sword";
   const isRanged = weapon.weapon_kind === "ranged";
 
-  const rarityEntry = lookup("rarities", weapon.rarity);
-  const rarityColor = rarityEntry?.color || "#aaa";
+  const rColor = rarityColor(weapon.rarity);
 
   const updateAttack = (i: number, patch: Partial<AttackData>) => {
     const moveset = [...weapon.moveset];
@@ -126,7 +124,7 @@ export default function WeaponEditor() {
     <div style={{ maxWidth: 800 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <h1 style={{ color: "#e0c097", margin: 0 }}>
-          {isNew ? "New Weapon" : <>Edit: <span style={{ color: rarityColor }}>{weapon.name}</span></>}
+          {isNew ? "New Weapon" : <>Edit: <span style={{ color: rColor }}>{weapon.name}</span></>}
         </h1>
         <button onClick={() => navigate("/weapons")} style={btnDanger}>Cancel</button>
       </div>
@@ -142,7 +140,7 @@ export default function WeaponEditor() {
           <input style={inputStyle} value={weapon.name} onChange={(e) => update({ name: e.target.value })} />
         </FormField>
         <FormField label="Rarity">
-          <TypeSelect category="rarities" value={weapon.rarity} onChange={(v) => update({ rarity: v })} allowEmpty={false} />
+          <RaritySelect value={weapon.rarity} onChange={(v) => update({ rarity: v })} />
         </FormField>
         <FormField label="Icon" hint="Icon asset reference">
           <input style={inputStyle} value={weapon.icon} onChange={(e) => update({ icon: e.target.value })} />
