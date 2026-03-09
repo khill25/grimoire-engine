@@ -230,8 +230,8 @@ export interface Armor {
   unique_id?: string;
   // Armor-specific
   resistance_kinetic: number;
-  resistance_atomic: number;
-  resistance_plasma: number;
+  resistance_elemental: number;
+  resistance_resonance: number;
   resistance_void: number;
   dot_protection: number;
   equip_weight: number;

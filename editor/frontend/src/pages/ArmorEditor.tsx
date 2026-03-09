@@ -20,8 +20,8 @@ interface ArmorData {
   unique_id: string;
   // Armor-specific fields
   resistance_kinetic: number;
-  resistance_atomic: number;
-  resistance_plasma: number;
+  resistance_elemental: number;
+  resistance_resonance: number;
   resistance_void: number;
   dot_protection: number;
   equip_weight: number;
@@ -32,7 +32,7 @@ const emptyArmor: ArmorData = {
   id: "", icon: "", name: "", value: 0, rarity: "common", description: "",
   is_quest_item: false, is_sellable: true, stackable: false, is_consumable: false,
   unique_id: "",
-  resistance_kinetic: 0, resistance_atomic: 0, resistance_plasma: 0, resistance_void: 0,
+  resistance_kinetic: 0, resistance_elemental: 0, resistance_resonance: 0, resistance_void: 0,
   dot_protection: 0, equip_weight: 0, mod_slots: 0,
 };
 
@@ -125,8 +125,9 @@ export default function ArmorEditor() {
       <Section title="Resistances">
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
           <SliderField label="Kinetic" value={item.resistance_kinetic} min={0} max={0.75} step={0.01} onChange={(v) => update({ resistance_kinetic: v })} />
-          <SliderField label="Atomic" value={item.resistance_atomic} min={0} max={0.75} step={0.01} onChange={(v) => update({ resistance_atomic: v })} />
-          <SliderField label="Plasma" value={item.resistance_plasma} min={0} max={0.75} step={0.01} onChange={(v) => update({ resistance_plasma: v })} />
+          <SliderField label="Elemental" value={item.resistance_elemental} min={0} max={0.75} step={0.01} onChange={(v) => update({ resistance_elemental: v })} />
+          {/* TODO: "Resonance" is a placeholder name pending final decision */}
+          <SliderField label="Resonance" value={item.resistance_resonance} min={0} max={0.75} step={0.01} onChange={(v) => update({ resistance_resonance: v })} />
           <SliderField label="Void" value={item.resistance_void} min={0} max={0.75} step={0.01} onChange={(v) => update({ resistance_void: v })} />
         </div>
       </Section>

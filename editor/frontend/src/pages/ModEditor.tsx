@@ -25,8 +25,9 @@ const MODIFIER_KEYS = [
   { key: "dot_damage", label: "DoT Damage" },
   { key: "dot_duration", label: "DoT Duration" },
   { key: "resistance_kinetic", label: "Resistance: Kinetic" },
-  { key: "resistance_atomic", label: "Resistance: Atomic" },
-  { key: "resistance_plasma", label: "Resistance: Plasma" },
+  { key: "resistance_elemental", label: "Resistance: Elemental" },
+  // TODO: "Resonance" is a placeholder name pending final decision
+  { key: "resistance_resonance", label: "Resistance: Resonance" },
   { key: "resistance_void", label: "Resistance: Void" },
 ];
 
