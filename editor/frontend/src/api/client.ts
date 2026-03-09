@@ -80,6 +80,42 @@ export const items = {
   delete: (id: string) => request<any>(`/items/${id}`, { method: "DELETE" }),
 };
 
+// Armor (game data)
+export const armor = {
+  list: () => request<any[]>("/armor"),
+  get: (id: string) => request<any>(`/armor/${id}`),
+  create: (data: any) => request<any>("/armor", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: any) => request<any>(`/armor/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (id: string) => request<any>(`/armor/${id}`, { method: "DELETE" }),
+};
+
+// Weapons (game data)
+export const weapons = {
+  list: () => request<any[]>("/weapons"),
+  get: (id: string) => request<any>(`/weapons/${id}`),
+  create: (data: any) => request<any>("/weapons", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: any) => request<any>(`/weapons/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (id: string) => request<any>(`/weapons/${id}`, { method: "DELETE" }),
+};
+
+// Mods (game data)
+export const mods = {
+  list: () => request<any[]>("/mods"),
+  get: (id: string) => request<any>(`/mods/${id}`),
+  create: (data: any) => request<any>("/mods", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: any) => request<any>(`/mods/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (id: string) => request<any>(`/mods/${id}`, { method: "DELETE" }),
+};
+
+// Spells (game data)
+export const spells = {
+  list: () => request<any[]>("/spells"),
+  get: (id: string) => request<any>(`/spells/${id}`),
+  create: (data: any) => request<any>("/spells", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: any) => request<any>(`/spells/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (id: string) => request<any>(`/spells/${id}`, { method: "DELETE" }),
+};
+
 // Game types (schema/enums)
 export const gameTypes = {
   get: () => request<any>("/game-types"),

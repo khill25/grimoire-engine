@@ -24,9 +24,9 @@ async def list_items(request: Request) -> list[dict]:
         results.append({
             "id": data.get("id", path.stem),
             "name": data.get("name", ""),
-            "type": data.get("type", ""),
             "rarity": data.get("rarity", "common"),
             "value": data.get("value", 0),
+            "stackable": data.get("stackable", False),
             "file": path.name,
         })
     return results

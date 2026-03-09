@@ -1,43 +1,43 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { items } from "../api/client";
+import { mods } from "../api/client";
 import EntityList from "../components/EntityList";
 
-interface ItemSummary {
+interface ModSummary {
   id: string;
   name: string;
   rarity: string;
-  value: number;
-  stackable: boolean;
+  kind: string;
+  slot_type: string;
   file: string;
 }
 
-export default function Items() {
-  const [list, setList] = useState<ItemSummary[]>([]);
+export default function Mods() {
+  const [list, setList] = useState<ModSummary[]>([]);
   const navigate = useNavigate();
 
-  const load = () => items.list().then(setList);
+  const load = () => mods.list().then(setList);
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (id: string) => {
-    await items.delete(id);
+    await mods.delete(id);
     load();
   };
 
   return (
     <EntityList
-      title="Items"
+      title="Mods"
       items={list}
       columns={[
         { key: "id", label: "ID", width: "150px" },
         { key: "name", label: "Name", width: "200px" },
+        { key: "kind", label: "Kind", width: "100px" },
+        { key: "slot_type", label: "Slot", width: "120px" },
         { key: "rarity", label: "Rarity", width: "100px" },
-        { key: "value", label: "Value", width: "80px" },
-        { key: "stackable", label: "Stackable", width: "80px" },
       ]}
-      basePath="/items"
+      basePath="/mods"
       onDelete={handleDelete}
-      onCreate={() => navigate("/items/new")}
+      onCreate={() => navigate("/mods/new")}
     />
   );
 }

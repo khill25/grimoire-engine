@@ -19,6 +19,14 @@ import WorldGraph from "./pages/WorldGraph";
 import Items from "./pages/Items";
 import ItemEditor from "./pages/ItemEditor";
 import GameTypes from "./pages/GameTypes";
+import ArmorList from "./pages/Armor";
+import ArmorEditor from "./pages/ArmorEditor";
+import Weapons from "./pages/Weapons";
+import WeaponEditor from "./pages/WeaponEditor";
+import Mods from "./pages/Mods";
+import ModEditor from "./pages/ModEditor";
+import Spells from "./pages/Spells";
+import SpellEditor from "./pages/SpellEditor";
 import ProjectSettings from "./pages/ProjectSettings";
 
 export default function App() {
@@ -42,6 +50,14 @@ export default function App() {
           <Route path="/factions/:id" element={<FactionEditor />} />
           <Route path="/items" element={<Items />} />
           <Route path="/items/:id" element={<ItemEditor />} />
+          <Route path="/armor" element={<ArmorList />} />
+          <Route path="/armor/:id" element={<ArmorEditor />} />
+          <Route path="/weapons" element={<Weapons />} />
+          <Route path="/weapons/:id" element={<WeaponEditor />} />
+          <Route path="/mods" element={<Mods />} />
+          <Route path="/mods/:id" element={<ModEditor />} />
+          <Route path="/spells" element={<Spells />} />
+          <Route path="/spells/:id" element={<SpellEditor />} />
           <Route path="/game-types" element={<GameTypes />} />
           <Route path="/story" element={<StoryBeats />} />
           <Route path="/validate" element={<Validate />} />

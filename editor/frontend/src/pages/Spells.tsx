@@ -1,43 +1,45 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { items } from "../api/client";
+import { spells } from "../api/client";
 import EntityList from "../components/EntityList";
 
-interface ItemSummary {
+interface SpellSummary {
   id: string;
   name: string;
   rarity: string;
-  value: number;
-  stackable: boolean;
+  damage_type: string;
+  mana_cost: number;
+  base_damage: number;
   file: string;
 }
 
-export default function Items() {
-  const [list, setList] = useState<ItemSummary[]>([]);
+export default function Spells() {
+  const [list, setList] = useState<SpellSummary[]>([]);
   const navigate = useNavigate();
 
-  const load = () => items.list().then(setList);
+  const load = () => spells.list().then(setList);
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (id: string) => {
-    await items.delete(id);
+    await spells.delete(id);
     load();
   };
 
   return (
     <EntityList
-      title="Items"
+      title="Spells"
       items={list}
       columns={[
         { key: "id", label: "ID", width: "150px" },
         { key: "name", label: "Name", width: "200px" },
+        { key: "damage_type", label: "Damage Type", width: "120px" },
         { key: "rarity", label: "Rarity", width: "100px" },
-        { key: "value", label: "Value", width: "80px" },
-        { key: "stackable", label: "Stackable", width: "80px" },
+        { key: "mana_cost", label: "Mana", width: "80px" },
+        { key: "base_damage", label: "Damage", width: "80px" },
       ]}
-      basePath="/items"
+      basePath="/spells"
       onDelete={handleDelete}
-      onCreate={() => navigate("/items/new")}
+      onCreate={() => navigate("/spells/new")}
     />
   );
 }

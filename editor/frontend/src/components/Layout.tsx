@@ -15,6 +15,10 @@ const storyNav = [
 const gameNav = [
   { to: "/game-types", label: "Game Types" },
   { to: "/items", label: "Items" },
+  { to: "/armor", label: "Armor" },
+  { to: "/weapons", label: "Weapons" },
+  { to: "/mods", label: "Mods" },
+  { to: "/spells", label: "Spells" },
 ];
 
 const toolsNav = [

@@ -200,6 +200,137 @@ export interface ValidationResult {
   entity_counts: Record<string, number>;
 }
 
+export interface Item {
+  id: string;
+  icon: string;
+  name: string;
+  value: number;
+  rarity: string;
+  description: string;
+  is_quest_item: boolean;
+  is_sellable: boolean;
+  stackable: boolean;
+  is_consumable: boolean;
+  unique_id?: string;
+  extras: Record<string, unknown>;
+}
+
+export interface Armor {
+  // Base Item fields
+  id: string;
+  icon: string;
+  name: string;
+  value: number;
+  rarity: string;
+  description: string;
+  is_quest_item: boolean;
+  is_sellable: boolean;
+  stackable: boolean;
+  is_consumable: boolean;
+  unique_id?: string;
+  // Armor-specific
+  resistance_kinetic: number;
+  resistance_atomic: number;
+  resistance_plasma: number;
+  resistance_void: number;
+  dot_protection: number;
+  equip_weight: number;
+  mod_slots: number;
+}
+
+export interface AttackData {
+  attack_index: number;
+  damage_multiplier: number;
+  windup_time: number;
+  active_time: number;
+  recovery_delay: number;
+  stamina_cost: number;
+}
+
+export interface Weapon {
+  // Base Item fields
+  id: string;
+  icon: string;
+  name: string;
+  value: number;
+  rarity: string;
+  description: string;
+  is_quest_item: boolean;
+  is_sellable: boolean;
+  stackable: boolean;
+  is_consumable: boolean;
+  unique_id?: string;
+  // Shared Weapon fields
+  weapon_kind: "sword" | "ranged";
+  augment_slots: number;
+  base_damage: number;
+  crit_damage: number;
+  crit_chance: number;
+  damage_type: string;
+  stamina_per_attack: number;
+  armor_penetration: number;
+  equip_weight: number;
+  // Sword-only
+  is_beam_sword?: boolean;
+  plasma_color?: string;
+  moveset?: AttackData[];
+  // Ranged-only
+  damage_falloff_start?: number;
+  max_range?: number;
+  spread?: number;
+  fire_rate?: number;
+  bullet_size?: number;
+}
+
+export interface Mod {
+  // Base Item fields
+  id: string;
+  icon: string;
+  name: string;
+  value: number;
+  rarity: string;
+  description: string;
+  is_quest_item: boolean;
+  is_sellable: boolean;
+  stackable: boolean;
+  is_consumable: boolean;
+  unique_id?: string;
+  // Mod-specific
+  kind: string;
+  slot_type: string;
+  properties: Record<string, number>;
+}
+
+export interface Spell {
+  id: string;
+  icon: string;
+  name: string;
+  rarity: string;
+  description: string;
+  value: number;
+  mana_cost: number;
+  stamina_cost: number;
+  recovery: number;
+  can_charge: boolean;
+  max_charge_pct: number;
+  is_continuous: boolean;
+  cooldown: number;
+  base_damage: number;
+  damage_type: string;
+  effects: string[];
+  effect_chance: number;
+}
+
+export interface SpellSummary {
+  id: string;
+  name: string;
+  rarity: string;
+  damage_type: string;
+  mana_cost: number;
+  base_damage: number;
+  file: string;
+}
+
 export interface StoryMeta {
   name: string;
   description: string;
