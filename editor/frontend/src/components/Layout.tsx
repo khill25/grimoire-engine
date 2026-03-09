@@ -13,6 +13,7 @@ const storyNav = [
 ];
 
 const gameNav = [
+  { to: "/game-constants", label: "Constants" },
   { to: "/game-types", label: "Game Types" },
   { to: "/items", label: "Items" },
   { to: "/armor", label: "Armor" },

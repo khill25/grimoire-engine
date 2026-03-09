@@ -25,6 +25,7 @@ import Weapons from "./pages/Weapons";
 import WeaponEditor from "./pages/WeaponEditor";
 import Mods from "./pages/Mods";
 import ModEditor from "./pages/ModEditor";
+import GameConstants from "./pages/GameConstants";
 import Spells from "./pages/Spells";
 import SpellEditor from "./pages/SpellEditor";
 import ProjectSettings from "./pages/ProjectSettings";
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="/mods/:id" element={<ModEditor />} />
           <Route path="/spells" element={<Spells />} />
           <Route path="/spells/:id" element={<SpellEditor />} />
+          <Route path="/game-constants" element={<GameConstants />} />
           <Route path="/game-types" element={<GameTypes />} />
           <Route path="/story" element={<StoryBeats />} />
           <Route path="/validate" element={<Validate />} />

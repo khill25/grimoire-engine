@@ -116,6 +116,12 @@ export const spells = {
   delete: (id: string) => request<any>(`/spells/${id}`, { method: "DELETE" }),
 };
 
+// Game constants (global tuning values)
+export const gameConstants = {
+  get: () => request<any>("/game-constants"),
+  update: (data: any) => request<any>("/game-constants", { method: "PUT", body: JSON.stringify(data) }),
+};
+
 // Game types (schema/enums)
 export const gameTypes = {
   get: () => request<any>("/game-types"),
