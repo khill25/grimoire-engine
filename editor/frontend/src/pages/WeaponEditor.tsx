@@ -247,7 +247,7 @@ export default function WeaponEditor() {
                 <FormField label="Active (s)">
                   <input style={inputStyle} type="number" step="0.01" value={atk.active_time} onChange={(e) => updateAttack(i, { active_time: parseFloat(e.target.value) || 0 })} />
                 </FormField>
-                <FormField label="Recovery (s)">
+                <FormField label="Recovery (s)" hint="Reduced by Mind at runtime">
                   <input style={inputStyle} type="number" step="0.01" value={atk.recovery_delay} onChange={(e) => updateAttack(i, { recovery_delay: parseFloat(e.target.value) || 0 })} />
                 </FormField>
               </div>

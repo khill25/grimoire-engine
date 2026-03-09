@@ -119,7 +119,7 @@ export default function SpellEditor() {
           <FormField label="Stamina Cost">
             <input style={inputStyle} type="number" step="0.1" value={spell.stamina_cost} onChange={(e) => update({ stamina_cost: parseFloat(e.target.value) || 0 })} />
           </FormField>
-          <FormField label="Recovery" hint="Seconds before next cast/attack">
+          <FormField label="Recovery" hint="Seconds before next cast/attack. Reduced by Mind at runtime (recovery_reduction).">
             <input style={inputStyle} type="number" step="0.1" value={spell.recovery} onChange={(e) => update({ recovery: parseFloat(e.target.value) || 0 })} />
           </FormField>
         </div>
@@ -165,7 +165,7 @@ export default function SpellEditor() {
         )}
 
         {!spell.is_continuous && (
-          <FormField label="Cooldown" hint="Seconds between casts (ignored for continuous spells)">
+          <FormField label="Cooldown" hint="Seconds between casts (ignored for continuous spells). Reduced by Mind at runtime (cooldown_reduction).">
             <input
               style={{ ...inputStyle, maxWidth: 200 }}
               type="number"
