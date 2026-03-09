@@ -116,6 +116,15 @@ export const spells = {
   delete: (id: string) => request<any>(`/spells/${id}`, { method: "DELETE" }),
 };
 
+// Loot tables (game data)
+export const lootTables = {
+  list: () => request<any[]>("/loot-tables"),
+  get: (name: string) => request<any>(`/loot-tables/${name}`),
+  create: (data: any) => request<any>("/loot-tables", { method: "POST", body: JSON.stringify(data) }),
+  update: (name: string, data: any) => request<any>(`/loot-tables/${name}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (name: string) => request<any>(`/loot-tables/${name}`, { method: "DELETE" }),
+};
+
 // Game constants (global tuning values)
 export const gameConstants = {
   get: () => request<any>("/game-constants"),

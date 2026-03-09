@@ -20,6 +20,7 @@ const gameNav = [
   { to: "/weapons", label: "Weapons" },
   { to: "/mods", label: "Mods" },
   { to: "/spells", label: "Spells" },
+  { to: "/loot-tables", label: "Loot Tables" },
 ];
 
 const toolsNav = [

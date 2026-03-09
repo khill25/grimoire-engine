@@ -331,6 +331,29 @@ export interface SpellSummary {
   file: string;
 }
 
+export interface StatRoll {
+  stat_key: string;
+  min_value: number;
+  max_value: number;
+}
+
+export interface LootEntry {
+  item_id: string;
+  weight: number;
+  quantity_min: number;
+  quantity_max: number;
+  is_guaranteed: boolean;
+  randomizable_stats: StatRoll[];
+}
+
+export interface LootTable {
+  name: string;
+  chance_any_drop: number;
+  min_items: number;
+  max_items: number;
+  entries: LootEntry[];
+}
+
 export interface StoryMeta {
   name: string;
   description: string;

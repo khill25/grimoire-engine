@@ -25,6 +25,8 @@ import Weapons from "./pages/Weapons";
 import WeaponEditor from "./pages/WeaponEditor";
 import Mods from "./pages/Mods";
 import ModEditor from "./pages/ModEditor";
+import LootTables from "./pages/LootTables";
+import LootTableEditor from "./pages/LootTableEditor";
 import GameConstants from "./pages/GameConstants";
 import Spells from "./pages/Spells";
 import SpellEditor from "./pages/SpellEditor";
@@ -59,6 +61,8 @@ export default function App() {
           <Route path="/mods/:id" element={<ModEditor />} />
           <Route path="/spells" element={<Spells />} />
           <Route path="/spells/:id" element={<SpellEditor />} />
+          <Route path="/loot-tables" element={<LootTables />} />
+          <Route path="/loot-tables/:id" element={<LootTableEditor />} />
           <Route path="/game-constants" element={<GameConstants />} />
           <Route path="/game-types" element={<GameTypes />} />
           <Route path="/story" element={<StoryBeats />} />
